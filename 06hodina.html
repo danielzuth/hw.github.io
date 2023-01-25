@@ -1,0 +1,1050 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+
+
+
+
+  
+  
+  
+  
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+
+
+
+
+  
+  
+  
+  
+  
+  <title>6. hodina</title>
+</head>
+
+
+<body>
+
+
+
+<h1>Komunikace RS232 diagnostika s&eacute;riov&eacute; sběrnice I2C a CAN 2.0</h1>
+
+
+
+<br>
+
+
+
+Sezn&aacute;men&iacute; s komunikac&iacute; RS232, převod TTL sign&aacute;lu na RS232, Převod RS323 na USB.<br>
+
+
+
+&bull;&nbsp;&nbsp;&nbsp; Vytvořte program kter&yacute; bude komunikovat s PC přes USB<br>
+
+
+
+&bull;&nbsp;&nbsp;&nbsp; diagnostikujte sběrnici I2C.<br>
+
+
+<br>
+
+<h2>Zad&aacute;n&iacute; </h2>
+
+1. Při odesl&aacute;n&iacute; znaku přes USB na ATmega 128, procesor odpov&iacute; "Obdrzel
+jsem znak : x", kde m&iacute;sto x bude vr&aacute;cen znak, kter&yacute; byl posl&aacute;n. <br>
+
+2. Přes sběrnici I2C zjistěte vzd&aacute;lenost ze senzoru SRF02<span style="color: rgb(255, 0, 0);"></span> a za&scaron;lete ji ve tvaru "Vzd&aacute;lenost je xx cm" do PC.&nbsp; <br>
+
+<h2>N&aacute;pověda</h2>
+
+
+<span style="font-weight: bold;">Princip činnosti</span><br>
+Komunikaci přes s&eacute;riov&aacute; rozhran&iacute; zaji&scaron;ťuje
+periferie USART (Universal
+Synchronous and Asynchronous serial Receiver and Transmitter -
+univerz&aacute;ln&iacute; synchronn&iacute; a asynchronn&iacute;
+přij&iacute;mač a vys&iacute;lač) . Jedn&aacute; se
+tedy o univerz&aacute;ln&iacute; periferii kter&aacute; může b&yacute;t
+využita pro komunikaci s
+ostatn&iacute;mi zař&iacute;zen&iacute;mi a to při plně
+duplexn&iacute;m provozu (registry přij&iacute;mače
+a vys&iacute;lače jsou nez&aacute;visl&eacute;). Procesor ATmega 128
+m&aacute; k dispozici 2 na
+sobě nez&aacute;visl&eacute; periferie USART0 a USART1. &nbsp;Přenos je
+možn&eacute;
+nastavit pro 5, 6, 7, 8, 9 datov&yacute;ch bitů a 1 nebo 2 Stop bity.
+D&aacute;le lze
+volit sudou nebo lichou paritu a hardwarovou kontrolu parity. K
+dispozici jsou tři různ&aacute; přeru&scaron;en&iacute;
+(ukončen&iacute; vys&iacute;l&aacute;n&iacute;, ukončen&iacute;
+př&iacute;jmu
+a vypr&aacute;zdněn&iacute; vys&iacute;lac&iacute;ho registru). <br>
+
+
+. <br>
+
+
+
+
+<div style="text-align: center;"><img src="obr/USART.png" alt="USART.png"><br>
+
+
+Blokov&eacute; sch&eacute;ma USART<br>
+
+
+<br>
+
+
+<div style="text-align: left;"><span style="font-weight: bold;">Komunikace RS232 a USB</span><br>
+
+
+V&yacute;stupy s procesoru jsou vždy v &uacute;rovni TTL, tzn. logick&aacute; 0 je cca 0V a
+logick&aacute; 1 je 5V (3,3V). Pro připojen&iacute; s PC je nutn&yacute; napěťov&yacute; převod na
+specifikace RS232 nebo USB. Pro RS232 je v&yacute;vojov&yacute; kit vybaven obvodem
+MAX232 a pro komunikaci přes USB obvodem FT232R.&nbsp; <br>
+
+
+<br>
+
+
+<span style="font-weight: bold;">Sběrnice I2C</span><br>
+
+
+Sběrnice I2C je v procesorech Atmel označov&aacute;na jako TWI (Two Wire
+Interface) . Vlastn&iacute; přenos využ&iacute;v&aacute; dvou vodičů a to SDA po kter&eacute;m se
+přen&aacute;&scaron;&iacute; data a SCL pro přenos hodinov&eacute;ho sign&aacute;lu. Komunikace prob&iacute;h&aacute;
+typem Master - Slave, kde každ&eacute; zař&iacute;zen&iacute; m&aacute; svoji adresu (vice zař&iacute;zen&iacute;
+na lince). &nbsp;U někter&yacute;ch obvodů je komunikace TWI ře&scaron;ena
+softwarově, ale vlastni program je složit&yacute; a hlavně zab&iacute;r&aacute; m&iacute;sto v
+paměti. U procesoru ATmega 128 je komunikace ře&scaron;ena hardwarově jak
+ukazuje n&aacute;sleduj&iacute;c&iacute; blokov&eacute; sch&eacute;ma. <br>
+
+
+<br>
+
+
+
+<div style="text-align: center;"><img src="obr/TWI.png" alt="TWI.png"><br>
+
+
+</div>
+
+
+<br>
+
+
+<span style="font-weight: bold;">Inicializace USART pro RS232<br>
+
+<br>
+
+</span>
+<pre>void uart_init (void)<br>{<br>// USART0 initialization<br>// Communication Parameters: 8 Data, 1 Stop, No Parity<br>// USART0 Receiver: On<br>// USART0 Transmitter: On<br>// USART0 Mode: Asynchronous<br>// USART0 Baud Rate: 9600<br>UCSR0A=0x00;<br>UCSR0B=0x18; //bez preruseni<br>//UCSR0B=0x98; // s prerusenim na prijem znaku (nutny vektor preruseni, globalne preruseni povolit a knihovna preruseni)<br>UCSR0C=0x06;<br>UBRR0H=0x00;<br>UBRR0L=0x5F;<br><br>}<br></pre>
+
+<span style="font-weight: bold;">Vektor přeru&scaron;en&iacute; pro př&iacute;jem znaku </span><br>
+
+<br>
+
+<span style="font-family: Courier New,Courier,monospace;">ISR(USART0_RX_vect)</span><br style="font-family: Courier New,Courier,monospace;">
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+<br>
+
+<span style="font-weight: bold;">Ovl&aacute;d&aacute;n&iacute; senzoru SRF02</span><br>
+
+<br>
+
+
+
+<div style="text-align: center;"><img src="obr/srf02pin.jpg" alt="srf02pin.jpg"><br>
+
+<br>
+
+Př&iacute;kazov&eacute; registry <br>
+
+<table style="text-align: left; margin-left: auto; margin-right: auto;" bgcolor="#ffffcc" border="1" cellpadding="0" cellspacing="0" width="77%">
+
+  <tbody>
+
+    <tr>
+
+
+      <td colspan="2" align="center" width="34%">Command</td>
+
+
+      <td rowspan="2" align="center" width="94%">Action</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">Decimal</td>
+
+
+      <td align="center" width="18%">Hex</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">80</td>
+
+
+      <td align="center" width="18%">0x50</td>
+
+
+      <td align="left"> Real Ranging Mode - Result in inches&nbsp;</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">81</td>
+
+
+      <td align="center" width="18%">0x51</td>
+
+
+      <td align="left"> Real Ranging Mode - Result in centimeters</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">82</td>
+
+
+      <td align="center" width="18%">0x52</td>
+
+
+      <td align="left"> Real Ranging Mode - Result in micro-seconds</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">&nbsp;</td>
+
+
+      <td align="center" width="18%">&nbsp;</td>
+
+
+      <td align="left" width="94%">&nbsp;</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">86</td>
+
+
+      <td align="center" width="18%">0x56</td>
+
+
+      <td align="left"> Fake Ranging Mode - Result in inches&nbsp;</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">87</td>
+
+
+      <td align="center" width="18%">0x57</td>
+
+
+      <td align="left"> Fake Ranging Mode - Result in centimeters</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">88</td>
+
+
+      <td align="center" width="18%">0x58</td>
+
+
+      <td align="left"> Fake Ranging Mode - Result in micro-seconds</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">&nbsp;</td>
+
+
+      <td align="center" width="18%">&nbsp;</td>
+
+
+      <td align="left" width="94%">&nbsp;</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">92</td>
+
+
+      <td align="center" width="18%">0x5C</td>
+
+
+      <td align="left" width="94%">Transmit an 8 cycle 40khz burst - no ranging
+        takes place</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">&nbsp;</td>
+
+
+      <td align="center" width="18%">&nbsp;</td>
+
+
+      <td align="left" width="94%">&nbsp;</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">96</td>
+
+
+      <td align="center" width="18%">0x60</td>
+
+
+      <td align="left" width="94%">Force Autotune Restart - same as power-up.
+        You can ignore this command.</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">&nbsp;</td>
+
+
+      <td align="center" width="18%">&nbsp;</td>
+
+
+      <td align="left" width="94%">&nbsp;</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">160</td>
+
+
+      <td align="center" width="18%">0xA0</td>
+
+
+      <td align="left" width="94%">1st in sequence to change I2C address</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">165</td>
+
+
+      <td align="center" width="18%">0xA5</td>
+
+
+      <td align="left" width="94%">3rd in sequence to change I2C address</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="16%">170</td>
+
+
+      <td align="center" width="18%">0xAA</td>
+
+
+      <td align="left" width="94%">2nd in sequence to change I2C address</td>
+
+    </tr>
+
+  
+  </tbody>
+</table>
+
+<br>
+
+Datov&eacute; registry <br>
+
+
+
+  
+  
+    
+<table style="text-align: left; margin-left: auto; margin-right: auto;" bgcolor="#ffffcc" border="1" cellpadding="0" cellspacing="0" width="53%">
+
+  <tbody>
+
+    <tr>
+
+
+      <td width="24%">
+        
+      
+      <p align="center">Location</p>
+
+      </td>
+
+
+      <td width="32%">
+        
+      
+      <p align="center">Read</p>
+
+      </td>
+
+
+      <td width="44%">
+        
+      
+      <p align="center">Write</p>
+
+      </td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td width="24%">
+        
+      
+      <p align="center">0</p>
+
+      </td>
+
+
+      <td width="32%">
+        
+      
+      <p align="center">Software Revision</p>
+
+      </td>
+
+
+      <td width="44%">
+        
+      
+      <p align="center">Command Register</p>
+
+      </td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td width="24%">
+        
+      
+      <p align="center">1</p>
+
+      </td>
+
+
+      <td width="32%">
+        
+      
+      <p align="center">Unused (reads 0x80)</p>
+
+      </td>
+
+
+      <td width="44%">
+        
+      
+      <p align="center">N/A&nbsp;</p>
+
+      </td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td width="24%">
+        
+      
+      <p align="center">2</p>
+
+      </td>
+
+
+      <td width="32%">
+        
+      
+      <p align="center">Range High Byte</p>
+
+      </td>
+
+
+      <td width="44%">
+        
+      
+      <p align="center">N/A</p>
+
+      </td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td width="24%">
+        
+      
+      <p align="center">3</p>
+
+      </td>
+
+
+      <td width="32%">
+        
+      
+      <p align="center">Range Low Byte</p>
+
+      </td>
+
+
+      <td width="44%">
+        
+      
+      <p align="center">N/A</p>
+
+      </td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="24%">
+        4</td>
+
+
+      <td align="center" width="32%">
+        Autotune Minimum - High Byte</td>
+
+
+      <td align="center" width="44%">
+        N/A</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="24%">
+        5</td>
+
+
+      <td align="center" width="32%">
+        Autotune Minimum - Low Byte</td>
+
+
+      <td align="center" width="44%">
+        N/A</td>
+
+    </tr>
+
+  
+  </tbody>
+</table>
+
+<br>
+
+<br>
+
+<div style="text-align: left;"><span style="font-weight: bold;">Funkce pro I2C (knihovna &nbsp;twi_lib.h)</span><br>
+
+i2c_init() &nbsp;- Inicializace I2C<br>
+
+i2c_start_wait() - komunikace pro konkr&eacute;tn&iacute; adresu I2C zař&iacute;zen&iacute;<br>
+
+i2c_write();&nbsp; - z&aacute;pis na adresu<br>
+
+i2c_rep_start() - osloven&iacute; zař&iacute;zen&iacute; pro čten&iacute;<br>
+
+i2c_readNak() - načten&iacute; znaku<br>
+
+i2c_stop() - ukončen&iacute; komunikace I2C<br>
+
+<br>
+
+<h2>Ře&scaron;en&iacute; </h2>
+
+<span style="font-weight: bold;">Př&iacute;klad 1</span><br>
+
+<br>
+
+#define F_CPU 16000000UL&nbsp;&nbsp;&nbsp; <br>
+
+<br>
+
+#include &lt;avr/io.h&gt;<br>
+
+#include &lt;string.h&gt;<br>
+
+#include &lt;util/delay.h&gt;<br>
+
+#include &lt;avr/interrupt.h&gt;<br>
+
+<br>
+
+<br>
+
+volatile unsigned char prerus=0;<br>
+
+volatile unsigned char muj_b;<br>
+
+char tempstr[12],znak; <br>
+
+<br>
+
+<br>
+
+//*******************************************************************************************<br>
+
+//&nbsp; MOJE UPRAVY<br>
+
+//-------------------------------------------------------------------------------------------<br>
+
+//<br>
+
+#define setb(port,pin)&nbsp;&nbsp;&nbsp; port |= 1&lt;&lt;pin&nbsp;&nbsp;&nbsp; //nastav bit<br>
+
+#define clrb(port,pin)&nbsp;&nbsp;&nbsp; port &amp;= ~(1&lt;&lt;pin) //nuluj bit<br>
+
+#define negb(port,pin)&nbsp;&nbsp;&nbsp; port ^= 1&lt;&lt;pin&nbsp;&nbsp;&nbsp; //neguj bit<br>
+
+<br>
+
+//*******************************************************************************************<br>
+
+//UART ATmega 128<br>
+
+//*******************************************************************************************<br>
+
+// Funkce pro UART:<br>
+
+void init_uart (unsigned int baud);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //inicializace UART<br>
+
+unsigned char u_getc( void
+);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//přijmi znak z UART<br>
+
+void u_putc( char data
+);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//napi&scaron; znak do UART<br>
+
+void u_puts( char *text
+);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//napi&scaron; string do UART<br>
+
+<br>
+
+<br>
+
+<br>
+
+// UART po&scaron;li znak:<br>
+
+void u_putc( char data )<br>
+
+{<br>
+
+<br>
+
+while ( !( UCSR0A &amp; (1&lt;&lt;UDRE)) )&nbsp;&nbsp;&nbsp;&nbsp; // Wait for empty transmit buffer<br>
+
+;<br>
+UDR0 =
+data;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Put data into buffer, sends the data<br>
+
+}<br>
+
+<br>
+
+<br>
+
+// UART po&scaron;li string:<br>
+
+void u_puts( char *text )<br>
+
+{<br>
+
+unsigned char i=0,temp;<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; do<br>
+
+&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;&nbsp;&nbsp; temp = text[i];<br>
+
+&nbsp;&nbsp;&nbsp; if(temp==0) break;<br>
+
+&nbsp;&nbsp;&nbsp; u_putc(temp);<br>
+
+&nbsp;&nbsp;&nbsp; i++;<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+&nbsp;&nbsp;&nbsp; while(temp&gt;0);<br>
+
+}<br>
+
+<br>
+
+// UART přijmi znak:<br>
+
+unsigned char u_getc( void )<br>
+
+{<br>
+
+<br>
+
+while ( !(UCSR0A &amp; (1&lt;&lt;RXC)) )&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Wait for data to be received<br>
+
+;<br>
+return
+UDR0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Get and return received data from buffer<br>
+
+}<br>
+
+<br>
+
+<br>
+
+//&nbsp; u_puts(tempstr);&nbsp; <br>
+
+//&nbsp; u_puts("\r\n");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // odř&aacute;dkuj<br>
+
+// Inicializace na 9600 pro 16MHZ<br>
+
+/*<br>
+
+UCSR0A=0x00;<br>
+
+UCSR0B=0x18;<br>
+
+UCSR0C=0x06;<br>
+
+UBRR0H=0x00;<br>
+
+UBRR0L=0x67;<br>
+
+<br>
+
+char tempstr[12],znak; <br>
+
+*/<br>
+
+//******************************************************************************************<br>
+
+<br>
+
+<br>
+
+ISR(USART0_RX_vect)<br>
+
+{<br>
+
+prerus=1;<br>
+
+muj_b = UDR0;<br>
+
+<br>
+
+}<br>
+
+<br>
+
+void main(void)<br>
+
+{<br>
+
+<br>
+
+<br>
+
+// Inicializace UART na 9600 pro 16MHZ<br>
+
+<br>
+
+UCSR0A=0x00;<br>
+
+//UCSR0B=0x18; bez preruseni<br>
+
+UCSR0B=0x98;<br>
+
+<br>
+
+<br>
+
+UCSR0C=0x06;<br>
+
+UBRR0H=0x00;<br>
+
+UBRR0L=0x67;<br>
+
+<br>
+
+<br>
+
+<br>
+
+PORTB=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // zablikani na zacatku<br>
+
+_delay_ms(50);<br>
+
+PORTB=255;<br>
+
+_delay_ms(50);<br>
+
+PORTB=0;<br>
+
+_delay_ms(50);<br>
+
+PORTB=255;<br>
+
+_delay_ms(50);<br>
+
+<br>
+
+<br>
+
+sei();<br>
+
+<br>
+
+while (1)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;<br>
+
+&nbsp;&nbsp;&nbsp; if (prerus==1)<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;&nbsp;&nbsp; u_puts("Obdrzel jsem:");&nbsp; <br>
+
+&nbsp; &nbsp;  u_putc(muj_b);&nbsp; <br>
+
+&nbsp; &nbsp;
+u_puts("\r\n");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// odř&aacute;dkuj&nbsp; &nbsp;&nbsp;&nbsp;<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br>
+
+}<br>
+
+<br>
+
+<br>
+
+<span style="font-weight: bold;">Př&iacute;klad 2 </span><br>
+
+<br>
+
+Do př&iacute;kladu 1 přid&aacute;me načten&iacute; vzd&aacute;lenosti :<br>
+
+#define U1&nbsp; 0xE0 // ADRESA <br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;i2c_init();<br>
+
+&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+i2c_start_wait(U1+I2C_WRITE); // (adresa+bit pro
+zapis)&nbsp;&nbsp;&nbsp; <br>
+&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+i2c_write(0x00);&nbsp; // zapis na tuto adresu
+...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+
+&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; i2c_write(81);
+// tohle (81 start mereni v cm)&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+
+&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+_delay_ms(70);&nbsp; // cekani na konec mereni min 63ms<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; /// precti
+vzdalenost 1. (byte 2 a 3)<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+i2c_start_wait(U1+I2C_WRITE);&nbsp;&nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; i2c_write(3);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //1.
+vydalenost L&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+i2c_rep_start(U1+I2C_READ);&nbsp;&nbsp; // (adresa+bit pro cteni)<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+vzdalenostL=i2c_readNak()&nbsp;
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // precteni
+jednoho B a ulozeni do promenne<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; i2c_write(2);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //1.
+vydalenost H<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+i2c_rep_start(U1+I2C_READ);<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+vzdalenostH=i2c_readNak()&nbsp; ;<br>
+
+<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; i2c_stop(); <br>
+
+<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+vzdalenost=(vzdalenostH*256)+vzdalenostL ;<br>
+
+<br>
+
+<br>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+
+</div>
+
+
+</body>
+</html>

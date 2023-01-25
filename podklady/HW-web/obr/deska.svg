@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   inkscape:label="Pozadí"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="Nový dokument 1">
+  <defs
+     id="defs3">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective9" />
+    <inkscape:perspective
+       id="perspective2823"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="275.831"
+     inkscape:cy="553.41892"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1440"
+     inkscape:window-height="810"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata6">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Vrstva 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       y="104.6479"
+       x="163.85715"
+       id="image2825"
+       height="604"
+       width="388"
+       xlink:href="file:///G:/!Skola!/!!UKOLY%20do%20konce%202010!!!/HW-web/obr/MB_ATmega128_v40-blok.png" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 205.35714,668.79075 c 0,6.60715 0,6.60715 0,6.60715 l 0,0 c 33.92857,0.17857 33.92857,0.17857 33.92857,0.17857 -0.35714,27.14285 -0.35714,27.14285 -0.35714,27.14285 l 3.39286,3.57143 c 85.71428,0 85.71428,0 85.71428,0 2.32143,-3.92857 2.32143,-3.92857 2.32143,-3.92857 -0.53571,-26.60714 -0.53571,-26.60714 -0.53571,-26.60714 34.46429,0 34.46429,0 34.46429,0 0.17857,-5.71429 0.17857,-5.71429 0.17857,-5.71429 76.96428,0 76.96428,0 76.96428,0 -0.17857,35.17857 -0.17857,35.17857 -0.17857,35.17857 61.60714,-0.17857 61.60714,-0.17857 61.60714,-0.17857 0.71429,-34.28571 0.71429,-34.28571 0.71429,-34.28571 0.35714,-1.42857 0.35714,-1.42857 0.35714,-1.42857 45.89286,0.35714 45.53572,0.17857 45.53572,0.17857 -0.35715,-83.39286 -0.89286,-553.57143 -0.89286,-553.57143 -40.71429,0.17857 -40.71429,0.17857 -40.71429,0.17857 -0.71428,0.17857 -0.89285,0.17857 -0.89285,0.17857 -0.17857,-7.32143 -0.17857,-7.32143 -0.17857,-7.32143 C 460.17857,108.79075 460,108.79075 460,108.79075 c 0.53572,7.32143 0.53572,7.32143 0.53572,7.32143 l -293.39286,-0.89286 -0.17857,554.10715 38.39285,-0.53572 z"
+       id="path3605"
+       inkscape:export-filename="G:\!Skola!\!!UKOLY do konce 2010!!!\HW-web\obr\MB_ATmega128_v40-blok2.png"
+       inkscape:export-xdpi="140"
+       inkscape:export-ydpi="140" />
+  </g>
+</svg>

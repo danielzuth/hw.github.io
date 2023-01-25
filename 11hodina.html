@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+  
+  <title>11. hodina</title>
+</head>
+
+
+<body>
+
+<h1>R&aacute;diov&eacute; moduly ZigBee</h1>
+
+Sezn&aacute;men&iacute; s principem r&aacute;diov&eacute; komunikace. <br>
+
+<br>
+
+<span style="font-weight: bold;">Ře&scaron;en&eacute; př&iacute;klady </span><br>
+
+- bezdr&aacute;tov&aacute; komunikace mezi dvěma moduly<br>
+
+<h2>Zad&aacute;n&iacute; </h2>
+
+- Ovl&aacute;dejte LED diody připojen&eacute; na kitu 1 pomoc&iacute;&nbsp; tlač&iacute;tek
+připojen&yacute;ch na kitu 2 a z&aacute;roveň pomoc&iacute; tlač&iacute;tek na kitu 1 ovl&aacute;dejte LED
+na kitu 2. Vys&iacute;lejte sign&aacute;l jen když nastane změna stavu tlač&iacute;tek. <br>
+
+<br>
+
+<h2>N&aacute;pověda</h2>
+
+<span style="font-weight: bold;">Ovl&aacute;d&aacute;n&iacute; modulu XBee</span><br>
+
+<div style="text-align: center;"><img src="obr/XBee.jpg" alt="XBee.jpg">
+<img src="http://www.hw.zuth.cz/obr/xbee_TxRx.png" alt="xbee_TxRx.png">
+<div style="text-align: left;"><br>
+
+Modul XBee je nastaven pro komunikaci typu Peer-to-peer a data se
+přen&aacute;&scaron;&iacute; pomoc&iacute; s&eacute;riov&eacute; komunikace UART, kde piny DI a DO jsou Rx a Tx
+(dle připojen&eacute;ho zař&iacute;zen&iacute;) <br>
+
+<br>
+
+</div>
+
+<img src="http://www.hw.zuth.cz/obr/xbee_RS232.png" alt="xbee_RS232.png"><br>
+
+<div style="text-align: left;"><span style="font-weight: bold;">Inicializace
+UART</span><br>
+
+viz. př&iacute;klad pro komunikaci RS232<br>
+
+<br>
+
+<h2><span style="font-weight: bold;">Ře&scaron;en&iacute;</span> </h2>
+
+</div>
+
+<div style="text-align: left;">#define F_CPU
+16000000UL&nbsp;&nbsp;&nbsp; <br>
+
+<br>
+
+#include &lt;avr/io.h&gt;<br>
+
+#include &lt;string.h&gt;<br>
+
+#include &lt;util/delay.h&gt;<br>
+
+#include &lt;avr/interrupt.h&gt;<br>
+
+<br>
+
+<br>
+
+volatile unsigned char prerus=0;<br>
+
+volatile unsigned char LED=255;<br>
+
+char tempstr[12],znak; <br>
+
+char BTN=255;<br>
+
+char BTN-new=255;<br>
+
+<br>
+
+//*******************************************************************************************<br>
+
+//&nbsp; MOJE UPRAVY<br>
+
+//-------------------------------------------------------------------------------------------<br>
+
+//<br>
+
+#define setb(port,pin)&nbsp;&nbsp;&nbsp; port |=
+1&lt;&lt;pin&nbsp;&nbsp;&nbsp; //nastav bit<br>
+
+#define clrb(port,pin)&nbsp;&nbsp;&nbsp; port &amp;= ~(1&lt;&lt;pin)
+//nuluj bit<br>
+
+#define negb(port,pin)&nbsp;&nbsp;&nbsp; port ^=
+1&lt;&lt;pin&nbsp;&nbsp;&nbsp; //neguj bit<br>
+
+<br>
+
+//*******************************************************************************************<br>
+
+//UART ATmega 128<br>
+
+//*******************************************************************************************<br>
+
+// Funkce pro UART:<br>
+
+void init_uart (unsigned int
+baud);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //inicializace
+UART<br>
+
+unsigned char u_getc( void
+);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//přijmi znak z UART<br>
+
+void u_putc( char data
+);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//napi&scaron; znak do UART<br>
+
+void u_puts( char *text
+);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//napi&scaron; string do UART<br>
+
+<br>
+
+<br>
+
+<br>
+
+// UART po&scaron;li znak:<br>
+
+void u_putc( char data )<br>
+
+{<br>
+
+<br>
+
+while ( !( UCSR0A &amp; (1&lt;&lt;UDRE)) )&nbsp;&nbsp;&nbsp;&nbsp; //
+Wait for empty transmit buffer<br>
+
+;<br>
+UDR0 =
+data;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Put data into buffer, sends the data<br>
+
+}<br>
+
+<br>
+
+<br>
+
+// UART po&scaron;li string:<br>
+
+void u_puts( char *text )<br>
+
+{<br>
+
+unsigned char i=0,temp;<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; do<br>
+
+&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;&nbsp;&nbsp; temp = text[i];<br>
+
+&nbsp;&nbsp;&nbsp; if(temp==0) break;<br>
+
+&nbsp;&nbsp;&nbsp; u_putc(temp);<br>
+
+&nbsp;&nbsp;&nbsp; i++;<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+&nbsp;&nbsp;&nbsp; while(temp&gt;0);<br>
+
+}<br>
+
+<br>
+
+// UART přijmi znak:<br>
+
+unsigned char u_getc( void )<br>
+
+{<br>
+
+<br>
+
+while ( !(UCSR0A &amp; (1&lt;&lt;RXC))
+)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Wait for data to be received<br>
+
+;<br>
+return
+UDR0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Get and return received data from buffer<br>
+
+}<br>
+
+<br>
+
+<br>
+
+//&nbsp; u_puts(tempstr);&nbsp; <br>
+
+//&nbsp;
+u_puts("\r\n");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// odř&aacute;dkuj<br>
+
+// Inicializace na 9600 pro 16MHZ<br>
+
+/*<br>
+
+UCSR0A=0x00;<br>
+
+UCSR0B=0x18;<br>
+
+UCSR0C=0x06;<br>
+
+UBRR0H=0x00;<br>
+
+UBRR0L=0x67;<br>
+
+<br>
+
+char tempstr[12],znak; <br>
+
+*/<br>
+
+//******************************************************************************************<br>
+
+<br>
+
+<br>
+
+ISR(USART0_RX_vect)<br>
+
+{<br>
+
+prerus=1;<br>
+
+LED = UDR0;<br>
+
+<br>
+
+}<br>
+
+<br>
+
+void main(void)<br>
+
+{<br>
+
+<br>
+
+<br>
+
+// Inicializace UART na 9600 pro 16MHZ<br>
+
+<br>
+
+UCSR0A=0x00;<br>
+
+//UCSR0B=0x18; bez preruseni<br>
+
+UCSR0B=0x98;<br>
+
+<br>
+
+<br>
+
+UCSR0C=0x06;<br>
+
+UBRR0H=0x00;<br>
+
+UBRR0L=0x67;<br>
+
+<br>
+
+<br>
+
+<br>
+
+DDRB=0xFF; // vystupn&iacute; - Ledky<br>
+
+DDRD=0x00; // vstupn&iacute;&nbsp; - Tlacitka<br>
+
+<br>
+
+<br>
+
+<br>
+
+PORTB=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+zablikani na zacatku<br>
+
+_delay_ms(50);<br>
+
+PORTB=255;<br>
+
+_delay_ms(50);<br>
+
+PORTB=0;<br>
+
+_delay_ms(50);<br>
+
+PORTB=255;<br>
+
+_delay_ms(50);<br>
+
+<br>
+
+<br>
+
+sei();<br>
+
+<br>
+
+while (1)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;<br>
+
+&nbsp;&nbsp;&nbsp; if (prerus==1)<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;&nbsp;&nbsp; PORTB=LED;<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+<br>
+
+BTN=PIND;<br>
+
+<br>
+
+if (BTN!=BTN_new)<br>
+
+&nbsp;&nbsp;&nbsp; {<br>
+
+&nbsp;&nbsp;&nbsp; BTN_new=BTN<br>
+
+&nbsp;&nbsp;&nbsp; u_puts(BTN);&nbsp;&nbsp; <br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp; }<br>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br>
+
+}</div>
+
+</div>
+
+&nbsp;<br>
+
+</body>
+</html>

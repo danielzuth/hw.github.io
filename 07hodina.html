@@ -1,0 +1,1012 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  <title>7. hodina</title>
+</head>
+
+
+<body>
+
+
+
+
+
+<h1>Alfanumerick&yacute; LCD</h1>
+
+
+
+
+
+
+
+<p class="MsoNormal">Sezn&aacute;men&iacute; s&nbsp;funkc&iacute; Znakov&eacute;ho LCD displeje a<span style="">&nbsp; </span>řadiče HD44780 od firmy HITACHI.</p>
+
+
+
+
+
+
+
+<p class="MsoNormal">Ře&scaron;en&eacute; př&iacute;klady :</p>
+
+
+
+
+
+
+
+<ul style="margin-top: 0cm;" type="disc">
+
+
+
+
+
+  <li class="MsoNormal" style="">Zobrazen&iacute; statick&eacute;ho textu na na
+     LCD.</li>
+
+
+
+  <li class="MsoNormal" style="">Zobrazen&iacute; měn&iacute;c&iacute;ch se proměnn&yacute;ch na LCD. <span style=""></span></li>
+
+
+
+
+
+  <li class="MsoNormal" style="">Na LCD zobrazujte text vět&scaron;&iacute; než 16 znaků formou posuvn&eacute;ho textu <br>
+
+
+
+
+  </li>
+
+
+
+
+
+</ul>
+
+
+
+
+
+
+<h2>Zad&aacute;n&iacute; </h2>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 1</span><br>
+Na prvn&iacute; ř&aacute;dek LCD zobrazte n&aacute;pis "PRVNI RADEK",
+na druh&yacute; ř&aacute;dek zobrazte statick&yacute; text "DRUHY RADEK"<br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 2</span><br>
+
+
+
+Na prvn&iacute; ř&aacute;dek napi&scaron;te text "<span style="font-family: Courier New,Courier,monospace;">promena i = x</span>" a na druh&yacute; ř&aacute;dek "<span style="font-family: Courier New,Courier,monospace;">promena j = y</span>".
+Kde x bude č&iacute;slo v rozsahu 0-255 a bude se každ&yacute;ch 100ms přič&iacute;tat a y
+bude č&iacute;slo v rozsahu 0-255 a bude se každ&yacute;ch 100ms odeč&iacute;tat. <br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 3</span><br>
+
+
+
+Na druh&eacute;m ř&aacute;dku nechte rotovat text "<span style="font-family: Courier New,Courier,monospace;">dlouhy text na hodne znaku klidne i 100</span>"<br>
+
+
+
+<h2>N&aacute;pověda </h2>
+
+<span style="font-weight: bold;">Princip alfanumerick&eacute;ho&nbsp;LCD</span><br>
+
+<br>
+
+
+<div style="text-align: center;"><img src="http://hw.zuth.cz/obr/foto/LCD-modry.png" alt="LCD-modry.png"><br>
+
+</div>
+
+<br>
+
+Alfanumerick&eacute; LCD dok&aacute;ž&iacute; zobrazovat pouze znaky, kter&eacute; maj&iacute; uložen&eacute; ve
+sv&eacute; ROM paměti. Komunikace s LCD prob&iacute;h&aacute; přes řadič, kter&eacute;mu jen
+oznamujeme jak&yacute; znak m&aacute; b&yacute;t zobrazen, to jak tento znak bude vypadat
+(font, velikost) je d&aacute;no vlastnostmi použit&eacute;ho LCD. &nbsp;Standardn&iacute;m
+řadičem pro znakov&eacute; LCD je HD44780 od firmy Hitachi (nebo jeho
+ekvivalent), to znamen&aacute; že v&scaron;echny znakov&eacute; LCD od různ&yacute;ch v&yacute;robců se
+ovl&aacute;daj&iacute; stejně. &nbsp;LCD se vyr&aacute;b&iacute; v několika variant&aacute;ch co se t&yacute;k&aacute;
+počtu znaků na ř&aacute;dek (sloupců) a ř&aacute;dků a to 8x2, 16x1, 16x2, 16x4,
+20x2, 20x4, 24x2, 24x4, 40x2, 40x4 (budeme pracovat s variantou 16x2 -
+16 znaků na ř&aacute;dek, 2 ř&aacute;dky ) <br>
+
+<br>
+
+Pro komunikaci potřebujeme 3 ř&iacute;dic&iacute; bity (RS- registr select, R/W -
+Read/Write, E -&nbsp;Enable) a 8 datov&yacute;ch bitů (DB0-DB7). &nbsp;Tento
+počet pinů je možno redukovat na 6 a to t&iacute;m, že si zvol&iacute;me 4bitovou
+komunikaci (data se budou pos&iacute;lat na dvakr&aacute;t) a vynech&aacute;me bit R/W v
+př&iacute;padě, že nepotřebujeme z LCD č&iacute;st.&nbsp; <br>
+
+<p style="text-align: center;">
+  Zapojen&iacute; v&yacute;vodů LCD je n&aacute;sleduj&iacute;c&iacute; (dle v&yacute;robců se může li&scaron;it)</p>
+
+<table style="width: 450px; text-align: left; margin-left: auto; margin-right: auto;" border="1" cellpadding="0" cellspacing="0">
+
+  <tbody>
+
+    <tr bgcolor="#ffffff">
+
+
+      <td style="width: 70px; text-align: center; background-color: rgb(225, 225, 225);"><b>v&yacute;vod</b></td>
+
+
+      
+      <td style="width: 70px; text-align: center; background-color: rgb(225, 225, 225);"><b>n&aacute;zev</b></td>
+
+
+      <td style="background-color: rgb(225, 225, 225);" align="center" bgcolor="#c0c0c0"><b>popis</b></td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">1</td>
+
+
+      
+      <td align="center" width="70">Vss</td>
+
+
+      <td align="center">nap&aacute;jen&iacute; GND</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">2</td>
+
+
+      
+      <td align="center" width="70">Vdd</td>
+
+
+      <td align="center">nap&aacute;jen&iacute; +5V</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">3</td>
+
+
+      
+      <td align="center" width="70">Vo</td>
+
+
+      <td align="center">kontrast 0V .. 5V (typ. 0,8V)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">4</td>
+
+
+      
+      <td align="center" width="70">RS</td>
+
+
+      <td style="text-align: center;">Register Select (0=instrukce, 1=data)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">5</td>
+
+
+      
+      <td align="center" width="70">R/W</td>
+
+
+      <td align="center">Read / Write (0=z&aacute;pis, 1=čten&iacute;)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">6</td>
+
+
+      
+      <td align="center" width="70">E</td>
+
+
+      <td align="center">Enable (1, <b>hrana z 1 -&gt; do 0</b>)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">7</td>
+
+
+      
+      <td align="center" width="70">DB0</td>
+
+
+      <td align="center">Data Bus 0</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">8</td>
+
+
+      
+      <td align="center" width="70">DB1</td>
+
+
+      <td align="center">Data Bus 1</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">9</td>
+
+
+      
+      <td align="center" width="70">DB2</td>
+
+
+      <td align="center">Data Bus 2</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">10</td>
+
+
+      
+      <td align="center" width="70">DB3</td>
+
+
+      <td align="center">Data Bus 3</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">11</td>
+
+
+      
+      <td align="center" width="70">DB4</td>
+
+
+      <td align="center">Data Bus 4</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">12</td>
+
+
+      
+      <td align="center" width="70">DB5</td>
+
+
+      <td align="center">Data Bus 5</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">13</td>
+
+
+      
+      <td align="center" width="70">DB6</td>
+
+
+      <td align="center">Data Bus 6</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">14</td>
+
+
+      
+      <td align="center" width="70">DB7</td>
+
+
+      <td align="center">Data Bus 7</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">15</td>
+
+
+      
+      <td align="center" width="70">A</td>
+
+
+      <td align="center">podsv&iacute;cen&iacute; - anoda LED (LCD s podsv&iacute;cen&iacute;m)</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td align="center" width="70">16</td>
+
+
+      
+      <td align="center" width="70">K</td>
+
+
+      <td align="center">podsv&iacute;cen&iacute; - katoda LED (LCD s podsv&iacute;cen&iacute;m)</td>
+
+
+    </tr>
+
+
+    
+    
+  
+  </tbody>
+</table>
+
+<div style="text-align: center;"><br>
+
+<div style="text-align: left;">&nbsp;<span style="font-style: italic;">Zobrazen&iacute; nestandardn&iacute;ch znaků</span><br>
+
+</div>
+
+</div>
+
+Pokud potřebujeme zobrazit znaky, kter&eacute; v&yacute;robce nezahrnul do z&aacute;kladn&iacute;
+znakov&eacute; sady, m&aacute;me k dispozici &nbsp;8 uživatelsky definovateln&yacute;ch
+znaků. Pro kompletn&iacute; zobrazen&iacute; česk&yacute;ch znaků 8 pozic nestač&iacute;, proto je
+nutno před každ&yacute;m zobrazen&iacute;m potřebn&eacute;ho znaku nejdř&iacute;ve přepsat v pamět&iacute;
+uživatelsk&eacute; znaky. Těchto 8 pozic lze použ&iacute;t i k vlastn&iacute;m nestandardn&iacute;m
+znakům jako je stav baterie, bar grafy a podobně (pokud jich potřebujeme
+v&iacute;ce jak 8 plat&iacute; tot&eacute;ž co s česk&yacute;mi znaky) <br>
+
+<br>
+
+<br>
+
+<span style="font-weight: bold;">Pro pr&aacute;ci s LCD použijte knihovnu funkc&iacute; &nbsp;v z&aacute;vislosti na zapojeni LCD</span>. <br>
+
+
+
+<br>
+
+
+
+
+<a href="knihovny/LCD-AC/knihovnaLCD.c">KnihovnaLCD.c</a> - Pro zapojeni LCD na porty A a C <br>
+
+
+
+<a href="knihovny/LCD-BD/knihovnaLCD.c">KnihovnaLCD.c </a>- Pro zapojeni LCD na porty B a D <br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Použ&iacute;van&eacute; funkce pro pr&aacute;ci s LCD:</span><br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">LCD_Init()</span> &nbsp;- inicializace LCD<br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">LCD_Clear() </span>- vymaz&aacute;n&iacute; LCD<br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">LCD_Position(0 , 0)</span> - nastaven&iacute; pozice pro zobrazen&iacute; (ř&aacute;dek, sloupec)<br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">LCD_WriteString("text")</span> - zaps&aacute;n&iacute; textu na LCD<br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Př&iacute;kazy pro pr&aacute;ci s proměnou typu string :</span><br>
+
+
+
+nutn&aacute; knihovna string.h (<span style="font-family: Courier New,Courier,monospace;"> #include &lt;string.h&gt;</span> )<br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">strcpy (text1, text2) </span>- vložen&iacute; textu2 do textu1 bez ohledu na to co text1 obsahoval<br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">strcat (text1, text2) </span>- přid&aacute;n&iacute; textu2 k textu1 <br>
+
+
+
+pro pr&aacute;ci s př&iacute;kazem <span style="font-family: Courier New,Courier,monospace;">sprintf</span> je nutn&aacute; knihovna stdio.h ( <span style="font-family: Courier New,Courier,monospace;">#include &lt;string.h&gt;</span>&nbsp;) <br>
+
+
+
+<br>
+
+
+
+<h2>Ře&scaron;en&iacute; </h2>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 1 : </span><br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"><br>
+
+
+
+#define F_CPU 14745600UL&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;avr/io.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;string.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;stdio.h&gt; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;util/delay.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;stdint.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include "knihovnaLCD.c"</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Init();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Clear();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; _delay_ms(2);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Position(0 , 0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_WriteString("Prvni radek");</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Position(1 , 0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_WriteString("Druhy radek");</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; _delay_ms(100);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 2<br>
+
+
+
+<br>
+
+
+
+</span><span style="font-family: Courier New,Courier,monospace;">#define F_CPU 14745600UL&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;avr/io.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;string.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;stdio.h&gt; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;util/delay.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;stdint.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include "knihovnaLCD.c"</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Init();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Clear();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; _delay_ms(2);<br>
+
+
+
+&nbsp;&nbsp;&nbsp; char i;<br>
+
+
+
+&nbsp;&nbsp;&nbsp; char j;<br>
+
+
+
+&nbsp;&nbsp;&nbsp; char tmp [17]; <br style="font-family: Courier New,Courier,monospace;">
+
+
+
+</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; sprintf(tmp,"promena i = %d",i)<br>
+
+
+
+&nbsp;&nbsp;&nbsp; LCD_Position(0 , 0);<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;">LCD_WriteString(tmp);<br>
+
+
+
+&nbsp;&nbsp;&nbsp; </span><span style="font-family: Courier New,Courier,monospace;">sprintf(tmp,"promena j = %d",j)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Position(1 , 0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_WriteString(tmp);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; _delay_ms(100);<br>
+
+
+
+&nbsp; &nbsp; i++;<br>
+
+
+
+&nbsp;&nbsp;&nbsp; j--;<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+</span><span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}<br>
+
+
+
+</span><span style="font-weight: bold;"><br>
+
+
+
+Př&iacute;klad 3</span><br>
+
+
+
+<br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define F_CPU 14745600UL&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;avr/io.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;string.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;stdio.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;util/delay.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;stdint.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include "knihovnaLCD.c"</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">char text[100];</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int delka;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int i,znaky;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">char tmp [20];</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"><br>
+
+
+
+int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Init();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Clear();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; _delay_ms(2);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">strcpy(text,"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ");</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">strcat(text,"dlouhy text na hodne znaku klidne i 100");</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">strcat(text,"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ");</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">znaky=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"><br>
+
+
+
+while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Position(0 , 0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"> </span><span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_WriteString("Posuvnej text");</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; delka=strlen(text);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (znaky==delka-16) znaky=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">for (i=0;i&lt;16;i++)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; tmp[i]=text[i+znaky];</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">tmp[16]=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">znaky++;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">LCD_Position(1 , 0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">LCD_WriteString(tmp);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;_delay_ms(300);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+<br>
+
+
+
+<br>
+
+
+
+ 
+
+
+</body>
+</html>

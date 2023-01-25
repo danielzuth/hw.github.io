@@ -1,0 +1,469 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <title>8. hodina</title>
+</head>
+
+
+<body>
+
+
+
+
+<h1>A/D převodn&iacute;k</h1>
+
+
+
+
+&bull;&nbsp;&nbsp;&nbsp; Sezn&aacute;men&iacute; s funkc&iacute; AD převodn&iacute;ku &ndash; jeho z&aacute;kladn&iacute;
+vlastnosti (Rozli&scaron;en&iacute;, rychlost převodu). Jako vstup do AD převodn&iacute;ku
+použijte potenciometr připojen na + 5V a GND.<br>
+
+
+
+<h2>Zad&aacute;n&iacute; </h2>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 1 </span><br>
+Připojte potenciometr na +5V a GND. Jezdec připojte na
+př&iacute;slu&scaron;n&yacute; pin AD převodn&iacute;ku. Na LCD
+zobrazte hodnotu AD převodu. <br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 2 </span><br>
+
+
+
+Roz&scaron;iřte předchoz&iacute; př&iacute;klad o přepočet na napět&iacute; V .&nbsp; <br>
+
+
+
+<h2>N&aacute;pověda</h2>
+
+<span style="font-weight: bold;">Princip AD převodn&iacute;ku</span><br>
+AD převodn&iacute;k je zař&iacute;zen&iacute;, kter&eacute;
+přev&aacute;d&iacute; analogov&yacute; spojit&yacute; sign&aacute;l na
+digit&aacute;ln&iacute; diskr&eacute;tn&iacute; hodnotu. Procesor
+ATmega 128 disponuje 10bitov&yacute;m AD
+převodn&iacute;kem což umožňuje využit procesor jako sn&iacute;mač
+elektrick&yacute;ch
+veličin. U neelektrick&yacute;ch veličin (teplota, tlak, vlhkost atd.)
+je
+nutn&yacute; převod na elektrickou veličinu vhodn&yacute;m
+sn&iacute;mačem. Z&aacute;kladn&iacute;
+vlastnosti AD převodn&iacute;ku použit&eacute;ho v procesoru&nbsp;jsou
+n&aacute;sleduj&iacute;c&iacute;:<br>
+
+<ul>
+
+  <li>Doba převodu 13 &ndash; 260 us</li>
+
+  <li>Rychlost až 15 kSPS</li>
+
+  <li>8 kan&aacute;lů (až 7 diferenci&aacute;ln&iacute;ch )</li>
+
+  <li>u&nbsp;2 kan&aacute;lů možnost programovateln&eacute;ho
+zes&iacute;len&iacute; 1,10,200 (za cenu sn&iacute;žen&iacute;
+rozli&scaron;ovac&iacute; schopnosti)</li>
+
+  <li>maxim&aacute;ln&iacute; pracovn&iacute; frekvence 200kHz,
+možnost zv&yacute;&scaron;it jen za cenu sn&iacute;žen&iacute;
+rozli&scaron;ovac&iacute; schopnosti (předdělička)</li>
+
+  <li>vnitřn&iacute; referenčn&iacute; napět&iacute; 2,56V </li>
+
+</ul>
+
+Princip činnosti je patrn&yacute; s n&aacute;sleduj&iacute;c&iacute;ho blokov&eacute;ho&nbsp;sch&eacute;matu.
+Měřen&aacute; hodnota se porovn&aacute;v&aacute; s n&aacute;sobky referenčn&iacute;ho napět&iacute; tak dlouho
+dokud se "nenalezne" hodnota &nbsp;nezn&aacute;m&eacute;ho vstupn&iacute;ho napět&iacute;. Měřen&iacute;
+na v&iacute;ce kan&aacute;lech se prov&aacute;d&iacute; multiplexně což m&aacute; za n&aacute;sledek prodlužov&aacute;n&iacute;
+času potřebn&eacute;ho pro měřen&iacute;.&nbsp; Registry pro pr&aacute;ci s AD převodn&iacute;kem
+jsou: <br>
+
+<ul>
+
+  <li>ADMUX - v&yacute;běr kan&aacute;lu a v&yacute;běr referenčn&iacute;ho napět&iacute;</li>
+
+  <li>ADCSRA - nastaven&iacute; rychlosti AD převodu, start převodu, ř&iacute;zen&iacute; přeru&scaron;en&iacute; atd. </li>
+
+  <li>ADCH a ADCL - dva registry obsahuj&iacute;c&iacute; v&yacute;slednou hodnotu, ADCW je
+dvojregistr složen&yacute; z těchto registrů (pozor m&aacute; 10bitů - nelze použ&iacute;t
+typ CHAR)&nbsp;</li>
+
+</ul>
+
+<div style="text-align: center;"><img src="http://hw.zuth.cz/obr/AD.png" alt="AD.png"><br>
+
+</div>
+
+
+
+<span style="font-weight: bold;">Inicializace AD převodn&iacute;ku:</span><br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ACSR=0x80;&nbsp;&nbsp;&nbsp;/*Bit 7 &ndash; ACD: Analog Comparator Disable &ndash; nastaven&iacute; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;tohoto
+bitu odpoj&iacute; nap&aacute;jen&iacute; kompar&aacute;toru a slouž&iacute; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;tedy k minimalizaci spotřeby. */</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">SFIOR=0x00;&nbsp;&nbsp;&nbsp;//vynulov&aacute;n&iacute; - vypnut&iacute; multiplexeru kompar&aacute;toru</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ADMUX=0x0;&nbsp;&nbsp;&nbsp; /*Bit 7:6 = 1:1 - vyb&iacute;r&aacute; zdroj referenčn&iacute;ho napět&iacute; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;dle kombinace bitů - 00-AREF, 01-AVCC, 11-vnitřn&iacute;*/</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;">ADCSRA=0x87;&nbsp; /*0x87=10000111&nbsp;&nbsp;&nbsp; prvn&iacute; tři bity nastavuj&iacute; děl&iacute;c&iacute; poměr </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; pro
+odvozen&iacute; hodinov&eacute;ho sign&aacute;lu ADC převodn&iacute;ku
+z <br>
+
+
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;hodinov&eacute;ho&nbsp;</span><span style="font-family: Courier New,Courier,monospace;"> kmitočtu CPU (zde 128). <br>
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;7.bit povoluje funkci ADC převodn&iacute;ku*/</span><br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Funkce pro spu&scaron;těn&iacute; AD převodu </span><span style="font-family: Courier New,Courier,monospace; font-weight: bold;">read_adc</span><span style="font-weight: bold;">: </span><br>
+
+
+
+<br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">unsigned int read_adc(unsigned char kanal)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;"> ADMUX=kanal;</span><span style="font-family: Courier New,Courier,monospace;"> //urč&iacute; přev&aacute;děn&yacute; kan&aacute;l</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ADCSRA|=0x40;
+/*Bit 6 - spou&scaron;t&iacute; celou konverzi. Při ukončen&iacute; převodu
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; je
+tento bit hardwarově nulov&aacute;n */</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;<br>
+
+
+
+while ((ADCSRA &amp; 0x10)==0); /*opakuj dokud 4.bit roven 0 (AND) - <br>
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;po dokončen&iacute; konverze&nbsp;</span><span style="font-family: Courier New,Courier,monospace;">se hardvarově nastav&iacute;<br>
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; 4.bit na 1*/</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ADCSRA|=0x10;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //vynuluj 4. bit (OR)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">return ADCW;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; /*ADCW jsou spojene registry ADCL a ADCH </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; ve kter&yacute;ch je v&yacute;sledek
+převodu*/</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+<h2>Ře&scaron;en&iacute; <span style="font-family: Courier New,Courier,monospace;"></span></h2>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define F_CPU 14745600UL&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;avr/io.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;string.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;stdio.h&gt; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;util/delay.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;stdint.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include "knihovnaLCD.c"</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int ADprevod;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">float napeti;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">char tmp [20];</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">unsigned int read_adc(unsigned char kanal)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; ADMUX=kanal;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; ADCSRA|=0x40; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; while ((ADCSRA &amp; 0x10)==0); &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; ADCSRA|=0x10;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; return ADCW;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; ACSR=0x80;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; SFIOR=0x00;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; ADMUX=0x0;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;">&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; ADCSRA=0x87; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"><br>
+
+
+
+&nbsp; LCD_Init();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; LCD_Clear();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; _delay_ms(2);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; ADprevod=read_adc(0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; napeti= ADprevod*5;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; napeti= napeti/1024;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Position(0 , 0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; sprintf (tmp, "ADprevod= %4d", ADprevod); </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_WriteString(tmp);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_Position(1 , 0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; sprintf (tmp, "Napeti = %4.2f V", napeti); </span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; LCD_WriteString(tmp);<br>
+
+
+
+</span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br>
+
+
+
+
+
+</body>
+</html>

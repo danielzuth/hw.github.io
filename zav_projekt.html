@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+  
+  <title>Závěrečný projekt</title>
+</head>
+
+
+<body>
+
+<h1>Závěrečný projekt </h1>
+
+<h2>Zadání č.1 - Minutka </h2>
+
+Vytvořte elektronický odpočet, který bude odpočítávat požadovaný čas.
+Po uplynutí doby vydá akustický signál. Aktuální čas bude zobrazován na
+LCD ve tvaru hh:mm:ss a odesílán po sériové lince.<br>
+
+<br>
+
+<span style="font-weight: bold;">Vlastnosti :</span><br>
+
+•&nbsp;&nbsp;&nbsp; Pomocí tlačítek na maticové klávesnici nastavte
+hodiny, minuty a vteřiny. <br>
+
+•&nbsp;&nbsp;&nbsp; Nastavování času je možné jen pokud není odpočet
+aktivní. <br>
+
+•&nbsp;&nbsp;&nbsp; Každých 10s odešle procesor aktuální čas ve formátu
+hh:mm:ss na seriovou linku. <br>
+
+•&nbsp;&nbsp;&nbsp; Časování bude řešeno pomocí timeru. <br>
+
+•&nbsp;&nbsp;&nbsp; Při pokusu nastavit čas pomocí klávesnice při
+aktivním odpočtu zazní varovný akustický signál. V případě pokusu o
+nastaveni času během odpočtu přes sériovou linku se odešle zpráva
+"Nelze memit cas pri spustenem odpoctu".<br>
+
+<br style="font-weight: bold;">
+
+<span style="font-weight: bold;">Ovládaní tlačítky:</span><br>
+
+<br>
+
+1 – nastavení hodin (plus jedna)<br>
+
+4 - nastavení hodin (mínus jedna)<br>
+
+2 – nastavení minut (plus jedna)<br>
+
+5 – nastavení minut (mínus jedna)<br>
+
+3 - nastavení vteřin (plus jedna)<br>
+
+6 - nastavení vteřin (mínus jedna)<br>
+
+0 – spuštění/pauza odpočtu<br>
+
+<br>
+
+&nbsp;<br>
+
+<span style="font-weight: bold;">Ovládaní pomocí sériové linky (ASCII
+znaky) při obdržení :</span><br>
+
+<br>
+
+1 – nastavení hodin (plus jedna)<br>
+
+4 - nastavení hodin (mínus jedna)<br>
+
+2 – nastavení minut (plus jedna)<br>
+
+5 – nastavení minut (mínus jedna)<br>
+
+3 - nastavení vteřin (plus jedna)<br>
+
+6 - nastavení vteřin (mínus jedna)<br>
+0 – spuštění/pauza odpočtu<br>
+
+<br>
+
+<br>
+
+<h3>Nápověda:</h3>
+
+<br>
+
+<span style="font-weight: bold;">Nastavení timeru 1 :</span><br>
+
+<br>
+
+Takt 57 600Hz, přerušení CTC (clear to compare - vynulovani pri
+rovnosti) ICR1.<br>
+
+<br>
+
+ISR(TIMER1_CAPT_vect)&nbsp;&nbsp;&nbsp;&nbsp; <br>
+
+{<br>
+
+}<br>
+
+<br>
+
+// Timer/Counter 1 initialization<br>
+
+// Clock source: System Clock<br>
+
+// Clock value: 57,600 kHz<br>
+
+// Mode: CTC top=ICR1<br>
+
+// OC1A output: Discon.<br>
+
+// OC1B output: Discon.<br>
+
+// OC1C output: Discon.<br>
+
+// Noise Canceler: Off<br>
+
+// Input Capture on Falling Edge<br>
+
+// Timer1 Overflow Interrupt: Off<br>
+
+// Input Capture Interrupt: On<br>
+
+// Compare A Match Interrupt: Off<br>
+
+// Compare B Match Interrupt: Off<br>
+
+// Compare C Match Interrupt: Off<br>
+
+TCCR1A=0x00;<br>
+
+TCCR1B=0x1C;<br>
+
+TCNT1H=0x00;<br>
+
+TCNT1L=0x00;<br>
+
+ICR1H=0x00;<br>
+
+ICR1L=0x00;<br>
+
+OCR1AH=0x00;<br>
+
+OCR1AL=0x00;<br>
+
+OCR1BH=0x00;<br>
+
+OCR1BL=0x00;<br>
+
+OCR1CH=0x00;<br>
+
+OCR1CL=0x00;<br>
+
+<br>
+
+// Timer(s)/Counter(s) Interrupt(s) initialization<br>
+
+TIMSK=0x20;<br>
+
+ETIMSK=0x00;<br>
+
+<br>
+
+<h2>Zadání č.2 – Couvací senzor</h2>
+
+Vytvořte analogový zobrazovač vzdálenosti s akustickým signálem. <br>
+
+<br>
+
+<span style="font-weight: bold;">Vlastnosti :</span><br>
+
+•&nbsp;&nbsp;&nbsp; Měření vzdálenosti realizujte pomocí snímače SRF02<br>
+
+•&nbsp;&nbsp;&nbsp; Připojený servomotor bude dle své polohy ukazovat
+vzdálenost 10-80cm<br>
+
+•&nbsp;&nbsp;&nbsp; Akustický signál bude měnit frekvenci pípání dle
+naměřené vzdálenosti (80cm = čas mezi pípáním 2s , 10 cm čas mezi
+pípáním 50ms). Základní pípnutí je 0,5s trvající tón o frekvenci cca
+1kHz.<br>
+
+<h2>Zadání č.3 – Reklamní posuvný text</h2>
+
+Vytvořte modul posuvného textu o maximální velikosti 160 znaků na
+16znakovém LCD . Zadávání textu je řešeno bezdrátově.<br>
+
+<br style="font-weight: bold;">
+
+<span style="font-weight: bold;">Vlastnosti</span><br>
+
+•&nbsp;&nbsp;&nbsp; Zadávání textu bude řešeno bezdrátově pomocí modulu
+Xbee<br>
+
+•&nbsp;&nbsp;&nbsp; Jednotlivé přicházející znaky řaďte za sebou.<br>
+
+•&nbsp;&nbsp;&nbsp; V případe, že text obsahuje méně než 16 znaků je
+zobrazen text staticky a zarovnán vlevo.<br>
+
+•&nbsp;&nbsp;&nbsp; V případě, že text obsahuje více než 16 znaků je
+zobrazován jako posuvný text. <br>
+
+•&nbsp;&nbsp;&nbsp; V případě že text obsahuje více než 160 znaků
+odešlete obsluze zprávu o dosažení maximálního počtu znaků.<br>
+
+•&nbsp;&nbsp;&nbsp; V případě zaslání znaku&nbsp;0xFF dojde k vymazaní celého textu<br>
+
+<br>
+
+<br>
+
+<br>
+
+</body>
+</html>

@@ -1,0 +1,787 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <title>3. hodina</title>
+</head>
+
+
+<body>
+
+
+
+
+<h1>Pr&aacute;ce s I/O porty v jazyku C</h1>
+
+
+
+Sezn&aacute;men&iacute; se z&aacute;kladn&iacute;mi př&iacute;kazy jazyka C. Pomoci těchto př&iacute;kazů ovl&aacute;dat
+periferie, na kter&yacute;ch je připojen modul LED diod a&nbsp; tlač&iacute;tek.<br>
+
+
+<span style="font-weight: bold;"><br>
+
+
+Ře&scaron;en&eacute; př&iacute;klady </span>(funkce stejn&eacute; jako v assembleru, ale programovan&iacute; pomoc&iacute; C):<br>
+
+
+&bull;&nbsp;&nbsp;&nbsp; Po zm&aacute;čknut&iacute; tlač&iacute;tka rozsviť v&scaron;echny LED<br>
+&bull;&nbsp;&nbsp;&nbsp; Po zmačknut&iacute; tlač&iacute;tka zablikej
+se v&scaron;emi LED (nutn&aacute; pr&aacute;ce s časem &ndash;
+vytvořen&iacute; přesn&eacute; časov&eacute; smyčky)<br>
+&bull;&nbsp;&nbsp;&nbsp; Vytvoř posuvn&eacute; světlo &ndash; student
+m&aacute; k dispozici 8 LED ( pr&aacute;ce s časem a
+adresov&aacute;n&iacute;m v&yacute;stupn&iacute;ho portu)
+
+<hr style="width: 100%; height: 2px;">
+<h2>Zad&aacute;n&iacute; :</h2>
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 1 :</span><br>
+
+
+
+
+Rozsviť LED dle zm&aacute;čknut&yacute;ch tlač&iacute;tek.<br>
+
+
+
+
+<br>
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 2</span><br>
+
+
+
+
+Pokud je zm&aacute;čknuto tlač&iacute;tko 1,tak sv&iacute;t&iacute; v&scaron;echny LED.<br>
+
+
+
+
+<br>
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 3 :</span><br>
+
+
+
+
+Pokud je zm&aacute;čknuto tlač&iacute;tko 1, tak v&scaron;echny LED blikaj&iacute; v intervalu cca 0,1s.<br>
+
+
+
+
+<br style="font-weight: bold;">
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 4.:</span><br>
+
+
+
+
+Vytvořte postupně rotuj&iacute;c&iacute; světlo (vždy sv&iacute;t&iacute; jen 1 cca 0,1s)<br>
+
+
+
+
+<br>
+
+
+
+
+<hr style="width: 100%; height: 2px;">
+<h2>N&aacute;pověda :</h2>
+
+<span style="font-weight: bold;">Elektrick&eacute; zapojen&iacute; LED a tlač&iacute;tek:<br>
+
+<br>
+
+</span>
+<div style="text-align: center;"><img src="http://hw.zuth.cz/obr/zapojeni/zapojeni_LED_a_tlac.png" alt="zapojeni_LED_a_tlac.png"><br>
+
+</div>
+
+<p class="MsoNormal" style="text-align: left; text-decoration: underline;">Princip pr&aacute;ce s LED a tlač&iacute;tkem</p>
+
+<p class="MsoNormal" style="text-align: left;">LED dioda je zapojena přes předřadn&yacute; odpor na + 5V.&nbsp;<br>
+
+Pokud nastav&iacute;me na pin (PA7) logickou 1 - LED neproch&aacute;z&iacute; proud a nesv&iacute;t&iacute;.<br>
+
+Pokud nastav&iacute;me na pin (PA7) logickou 0 - LED proch&aacute;z&iacute; proud směrem do procesoru a sv&iacute;t&iacute;.</p>
+
+<p class="MsoNormal" style="text-align: left;">Tlač&iacute;tko je
+zapojeno na GND. Na pin (PA0) je nutn&eacute; trvale nastavit
+vnitřn&iacute; pullup odpor pomoc&iacute; registru PORTx.<br>
+
+Pokud je tlač&iacute;tko rozepnuto, tak d&iacute;ky vnitřn&iacute;mu pullup odporu čteme na pinu (PA0) logickou 0.<br>
+
+Pokud je tlač&iacute;tko sepnuto, tak se potenci&aacute;l GND dostane na pin (PA0) a čteme logickou 1.</p>
+
+<br>
+
+
+
+
+<span style="font-weight: bold;">Použit&eacute; registry:</span><br>
+
+
+
+
+DDRx &ndash; Data Direction Registr &ndash; směr toku dat. Určuje zda bude pin vstupn&iacute; nebo v&yacute;stupn&iacute;.<br>
+
+
+
+
+PINx &ndash; načten&iacute; hodnoty na vstupu<br>
+
+
+
+
+PORTx- nastaven&iacute; hodnot na v&yacute;stupu<br>
+
+
+
+
+<br>
+
+
+
+
+<span style="font-weight: bold;">Použit&eacute; př&iacute;kazy :</span><br>
+
+
+
+
+if bit_is_clear (xxx,x) &ndash; dotaz na nulovost bitu<br>
+
+
+
+
+_delay_ms(x) &ndash; ček&aacute;n&iacute; x milisekund<br>
+
+
+
+
+_delay_us(x) &ndash; ček&aacute;n&iacute; x mikrosekund<br>
+
+
+
+
+<br>
+
+
+
+
+<br style="font-weight: bold;">
+
+
+
+
+<span style="font-weight: bold;">Pr&aacute;zdn&yacute; program v C : <br>
+
+
+
+
+<br>
+
+
+
+
+</span><span style="font-family: Courier New,Courier,monospace;">#define F_CPU 16000000UL&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;avr/io.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;string.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;util/delay.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//*************************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp; UPRAVY</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//-------------------------------------------------------------------------------------------</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define setb(port,pin)&nbsp;&nbsp;&nbsp; port |= 1&lt;&lt;pin&nbsp;&nbsp;&nbsp; //nastav bit</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define clrb(port,pin)&nbsp;&nbsp;&nbsp; port &amp;= ~(1&lt;&lt;pin) //nuluj bit</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define negb(port,pin)&nbsp;&nbsp;&nbsp; port ^= 1&lt;&lt;pin&nbsp;&nbsp;&nbsp; //neguj bit</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//*************************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRB=0xFF; // vystupn&iacute; - Ledky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRD=0x00; // vstupn&iacute;&nbsp; - Tlacitka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Vlastni program</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+<hr style="width: 100%; height: 2px;">
+<h2>Ře&scaron;en&iacute; :</h2>
+
+
+
+
+<br>
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 1:</span><br>
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRB=0xFF; // vystupn&iacute; - Ledky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRD=0x00; // vstupn&iacute;&nbsp; - Tlacitka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; PORTB=PIND&nbsp; // Vlastni program</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+<br>
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 2:</span><br>
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRB=0xFF; // vystupn&iacute; - Ledky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRD=0x00; // vstupn&iacute;&nbsp; - Tlacitka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; if bit_is_clear(PIND,0) PORTB=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; else PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+<br>
+
+
+
+
+<br style="font-weight: bold;">
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 3:</span><br>
+
+
+
+
+<br>
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRB=0xFF; // vystupn&iacute; - Ledky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRD=0x00; // vstupn&iacute;&nbsp; - Tlacitka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if bit_is_clear(PIND,0) </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;">&nbsp; PORTB=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp; _delay_ms(100);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp; PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp; _delay_ms(100);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;">else PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+
+<br>
+
+
+
+
+<br>
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 4:</span><br>
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRB=0xFF; // vystupn&iacute; - Ledky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRD=0x00; // vstupn&iacute;&nbsp; - Tlacitka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">PORTB=255;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br>
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { // zacatek nekonecne smycky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if bit_is_clear (PIND,0) cas=20; else cas=100;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; for (i=0;i&lt;8;i++) </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; negb(PORTB,i);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;">_delay_ms(cas);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; for (i=7;i==0;i--) </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; negb(PORTB,i);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;">_delay_ms(cas);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;}; // konec smycky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">} // konec programu</span><br>
+
+
+
+
+<br>
+
+
+
+
+<br>
+
+
+
+
+<br>
+
+
+
+
+
+</body>
+</html>

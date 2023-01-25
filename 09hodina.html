@@ -1,0 +1,845 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <title>9. hodina</title>
+</head>
+
+
+<body>
+
+
+
+
+<h1>PWM</h1>
+
+
+
+
+
+Sezn&aacute;men&iacute; s ovl&aacute;d&aacute;n&iacute;m servomotorů (PWM sign&aacute;l) <br>
+
+
+
+
+Ře&scaron;en&eacute; př&iacute;klady :<br>
+&bull;&nbsp;&nbsp;&nbsp; Převeďte sign&aacute;l s otočen&iacute;
+potenciometru přes AD převodn&iacute;k na otočen&iacute;
+servomechanismu.<br>
+
+
+
+<h2>Zad&aacute;n&iacute; </h2>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 1</span><br>
+
+
+
+Pro ověřen&iacute; funkce otočte servomotor na polohu 0&deg; po 1s na 90&deg;,&nbsp; po 1s na 180&deg;. <br>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 2</span><br>
+
+
+
+Otočte servomotorem dle otočen&iacute; potenciometru.<br>
+
+
+
+<h2>N&aacute;pověda</h2>
+
+
+<span style="font-weight: bold;">Princip PWM</span><br>
+
+PWM sign&aacute;l je realizov&aacute;n pomoc&iacute; timeru a dvou pomocn&yacute;ch registrů ICRx a
+OCRxA. Hodnota registru ICRx určuje periodu (frekvenci) PWM sign&aacute;lu -
+je to hodnota do kter&eacute; m&aacute; timer poč&iacute;tat, než dojde k vynulov&aacute;n&iacute;.
+Hodnota OCRxA určuje tzv. stř&iacute;du (doba trv&aacute;n&iacute; 1 k době trv&aacute;n&iacute; 0) - do
+t&eacute; doby než timer napoč&iacute;t&aacute; do t&eacute;to hodnoty je na v&yacute;stupu logick&aacute; 1 a
+při dosažen&iacute; t&eacute;to hodnoty je na v&yacute;stupu logick&aacute; 0.. <br>
+
+
+<br>
+
+
+
+<div style="text-align: center;"><img src="http://hw.zuth.cz/obr/PWM.png" alt="PWM.png"><br>
+
+
+<br>
+
+
+<div style="text-align: left;"><span style="font-weight: bold;">Ovl&aacute;d&aacute;n&iacute; servomotoru</span><br>
+
+Sign&aacute;l pro ovl&aacute;dan&iacute; servomotoru je přesně definov&aacute;n jako PWM sign&aacute;l
+s&nbsp;periodou 20ms a čas trv&aacute;n&iacute; jednotkov&eacute;ho impulsu určuje
+natočen&iacute; serva. Hodnota 1,5ms je středov&aacute; poloha servomotoru a krajn&iacute;
+polohy jsou pak 0,6ms a 2,4ms (může se m&iacute;rně li&scaron;it dle v&yacute;robce). <br>
+
+
+<br>
+
+
+
+<div style="text-align: center;"><img src="obr/PWM-servo.png" alt="PWM-servo.png"><br>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<span style="font-weight: bold;"><br>
+
+Inicializace timeru pro přesne PWM: </span><br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Timer/Counter 1 initialization</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Clock source: System Clock</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Clock value: 2000,000 kHz</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Mode: Ph. &amp; fr. cor. PWM top=ICR1</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// OC1A output: Non-Inv.</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// OC1B output: Discon.</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// OC1C output: Discon.</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Noise Canceler: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Input Capture on Falling Edge</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Timer 1 Overflow Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Input Capture Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Compare A Match Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Compare B Match Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Compare C Match Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">TCCR1A=0x80;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">TCCR1B=0x12;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">TCNT1H=0x00;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">TCNT1L=0x00;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//********************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp; Vypocet frekvence PWM :</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// ------------------------</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp; poz. frekvence&nbsp; = ---------------- /2= 50Hz</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 1</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -------- * ICR1</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; 2000 000</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp; po uprave: (Clock je fr. timeru tj. Fr. procesoru/N&nbsp; ,</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+kde N je preddelicka 1, 8, 64, 256, nebo 1024) </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Clock (Hz)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ICR1 = ----------------------</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2 * poz. frekvence PWM</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Vypocet OCR1 (na urceni stridy):</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// ----------------------------------</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clock (Hz)&nbsp; *&nbsp;&nbsp; Poz. cas</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OCR1 = ----------------------------</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//*********************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// ICR1=20000; pro 16MHz</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ICR1=18432;&nbsp; // pro 14,745600 Hz</span><br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;"></span><br>
+
+
+
+<span style="font-weight: bold;">Funkce pro zad&aacute;v&aacute;n&iacute; v čase ř&iacute;d&iacute;c&iacute;ho impulsu <br>
+
+
+
+<br>
+
+
+
+</span><span style="font-family: Courier New,Courier,monospace;">void servo_us(unsigned int uSec)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; // 0,9216 = 1us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (uSec&lt;600) uSec=600;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (uSec&gt;2400) uSec=2400;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">OCR1A=(922*(uSec/100))/10; &nbsp;&nbsp;&nbsp; <br>
+
+
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // hlidat aby nepretekl int (cca 65000)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;// za cenu zaokrouhleni 921,6 na 922</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//OCR1A=0.9216*uSec;&nbsp; //pouziti float = presne, ale zabira hodne pameti</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; }</span><br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Funkce pro zad&aacute;v&aacute;n&iacute; &uacute;hlu</span><br>
+
+
+
+
+<br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">void servo_poloha(unsigned char poloha)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// 921,6 = cca 922 =&nbsp; 1ms</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// 0,9216 = 1us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// stred = 1500 us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// 0st= 600us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// 180st= 2400us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (poloha&lt;0) poloha=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (poloha&gt;180) poloha=180;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">servo_us((poloha*10)+600);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; }</span><br>
+
+
+
+<br>
+
+
+
+<h2>Ře&scaron;en&iacute;</h2>
+
+
+
+<span style="font-weight: bold;">&nbsp;Př&iacute;klad 1</span><br>
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define F_CPU 14745600UL&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;avr/io.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;string.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;util/delay.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">void servo_us(unsigned int uSec)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; // 0,9216 = 1us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (uSec&lt;600) uSec=600;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (uSec&gt;2400) uSec=2400;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">OCR1A=(922*(uSec/100))/10; &nbsp;&nbsp;&nbsp; // hlidat aby nepretekl int (cca 65000)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // za cenu zaokrouhleni 921,6 na
+922</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">//OCR1A=0.9216*uSec;&nbsp; //pouziti float = presne, ale zabira hodne pameti</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">void servo_poloha(unsigned char poloha)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// 921,6 = cca 922 =&nbsp; 1ms</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// 0,9216 = 1us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// stred = 1500 us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// 0st= 600us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;// 180st= 2400us</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (poloha&lt;0) poloha=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (poloha&gt;180) poloha=180;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">servo_us((poloha*10)+600);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">PORTB=0x00;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRB=0xB0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Timer/Counter 1 initialization</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Clock source: System Clock</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Clock value: 2000,000 kHz</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Mode: Ph. &amp; fr. cor. PWM top=ICR1</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// OC1A output: Non-Inv.</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// OC1B output: Discon.</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// OC1C output: Discon.</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Noise Canceler: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Input Capture on Falling Edge</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Timer 1 Overflow Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Input Capture Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Compare A Match Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Compare B Match Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Compare C Match Interrupt: Off</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">TCCR1A=0x80;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">TCCR1B=0x12;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">TCNT1H=0x00;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">TCNT1L=0x00;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// ICR1=20000; pro 16MHz</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ICR1=18432;&nbsp; // pro 14,745600 Hz</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// 921,6 = cca 922 =&nbsp; 1ms</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">// </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; servo_poloha(0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; _delay_ms(1000);</span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; servo_poloha(90);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; _delay_ms(1000);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp; servo_poloha(180);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; _delay_ms(1000);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 2 </span><br>
+
+
+
+nutn&aacute; inicializace AD převodn&iacute;ku., pak převod otočeni potenciometru na otočen&iacute; servomotoru je : <br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;"><br>
+
+
+
+uhel = read_adc(1);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">uhel =&nbsp; uhel / (1024/180);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">servo_poloha(uhel);</span><br>
+
+
+
+<br>
+
+
+
+<br>
+
+
+
+
+
+</body>
+</html>

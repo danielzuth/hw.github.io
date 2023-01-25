@@ -1,0 +1,1699 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <title>2. hodina</title>
+</head>
+
+
+<body>
+
+
+
+
+
+
+
+
+
+
+<h1>Pr&aacute;ce s&nbsp;I/O
+porty v&nbsp;jazyku symbolick&yacute;ch adres (Assembly language )</h1>
+
+
+
+
+
+Sezn&aacute;men&iacute; se z&aacute;kladn&iacute;mi př&iacute;kazy jazyka assembler. Pomoci těchto př&iacute;kazů
+ovl&aacute;dat periferie, na kter&yacute;ch je připojen modul LED diod a&nbsp;
+tlač&iacute;tek.<br>
+
+
+
+
+<br>
+
+
+
+
+<span style="font-weight: bold;">Ře&scaron;en&eacute; př&iacute;klady :</span><br>
+
+
+
+
+&bull;&nbsp;&nbsp;&nbsp; Po zm&aacute;čknut&iacute; tlač&iacute;tka rozsviť v&scaron;echny LED<br>
+
+
+&bull;&nbsp;&nbsp;&nbsp; Po zmačknut&iacute; tlač&iacute;tka zablikej
+se v&scaron;emi LED (nutn&aacute; pr&aacute;ce s časem &ndash;
+vytvořen&iacute; přesn&eacute; časov&eacute; smyčky)<br>
+
+
+&bull;&nbsp;&nbsp;&nbsp; Vytvoř posuvn&eacute; světlo &ndash; student
+m&aacute; k dispozici 8 LED ( pr&aacute;ce s časem a
+adresov&aacute;n&iacute;m v&yacute;stupn&iacute;ho portu)<br>
+
+
+
+
+
+<hr style="width: 100%; height: 2px;">
+<h2>Zad&aacute;n&iacute; :</h2>
+
+
+
+
+
+
+
+
+<p class="MsoNormal" style="text-align: left;"><span style="font-weight: bold;">Př&iacute;klad 1 :</span><br>
+
+
+
+
+
+
+
+
+Rozsviť LED dle zm&aacute;čknut&yacute;ch tlač&iacute;tek.<br>
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 2</span><br>
+
+
+
+
+
+
+
+
+Pokud je zm&aacute;čknuto tlač&iacute;tko 1,tak sv&iacute;t&iacute; v&scaron;echny LED.<br>
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 3 :</span><br>
+
+
+
+
+
+
+
+
+Pokud je zm&aacute;čknuto tlač&iacute;tko 1, tak v&scaron;echny LED blikaj&iacute; v intervalu cca 0,1s.<br>
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+<span style="font-weight: bold;">Př&iacute;klad 4.:</span><br>
+
+
+
+
+
+
+
+
+Vytvořte postupně rotuj&iacute;c&iacute; světlo (vždy sv&iacute;t&iacute; jen 1 cca 0,1s)</p>
+
+
+
+
+
+
+
+
+<hr style="width: 100%; height: 2px;">
+<h2>N&aacute;pověda:</h2>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Elektrick&eacute; zapojen&iacute; LED a tlač&iacute;tek:</span><br>
+
+
+
+
+<div style="text-align: center;"><img src="http://hw.zuth.cz/obr/zapojeni/zapojeni_LED_a_tlac.png" alt="zapojeni_LED_a_tlac.png"></div>
+
+
+
+
+
+
+
+
+<p class="MsoNormal" style="text-align: left; text-decoration: underline;">Princip pr&aacute;ce s LED a tlač&iacute;tkem</p>
+
+
+
+<p class="MsoNormal" style="text-align: left;">LED dioda je zapojena přes předřadn&yacute; odpor na + 5V.&nbsp;<br>
+
+
+
+Pokud nastav&iacute;me na pin (PA7) logickou 1 - LED neproch&aacute;z&iacute; proud a nesv&iacute;t&iacute;.<br>
+
+
+
+Pokud nastav&iacute;me na pin (PA7) logickou 0 - LED proch&aacute;z&iacute; proud směrem do procesoru a sv&iacute;t&iacute;.</p>
+
+
+
+<p class="MsoNormal" style="text-align: left;">Tlač&iacute;tko je
+zapojeno na GND. Na pin (PA0) je nutn&eacute; trvale nastavit
+vnitřn&iacute; pullup odpor pomoc&iacute; registru PORTx.<br>
+
+
+
+Pokud je tlač&iacute;tko rozepnuto, tak d&iacute;ky vnitřn&iacute;mu pullup odporu čteme na pinu (PA0) logickou 0.<br>
+
+
+
+Pokud je tlač&iacute;tko sepnuto, tak se potenci&aacute;l GND dostane na pin (PA0) a čteme logickou 1.</p>
+
+
+
+<p class="MsoNormal" style="text-align: left;"><span style="font-weight: bold;"></span></p>
+
+
+
+<p class="MsoNormal" style="text-align: left;"><span style="font-weight: bold;">Pr&aacute;zdn&yacute; program v asm:</span><br>
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+;***************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+;*&nbsp; Definice procesoru *</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+;*************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+.DEVICE atmega128&nbsp; ; neni nutne, ale je vhodne (kontrola spravnosti rozsahu pameti atd atd)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+;*********************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+; Definice portu a registru&nbsp; (pomoci direktiv) Adresy dle datasheetu str. 362</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+.EQU PIND =$10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D VSTUP - Tlacitka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+.EQU DDRD =$11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D SMER</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+.EQU PORTD =$12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+.EQU PINB =$16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+.EQU DDRB =$17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B SMER</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+.EQU PORTB =$18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B VYSTUP - LEDky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+; Definice promenych&nbsp; (volne registry 16-31 - viz dataheet str 13.)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+.def DATA=r25&nbsp;&nbsp;&nbsp; ;definice promene "DATA" do registru R25 (prirazeni jmena registu)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+; inicializace portu&nbsp;&nbsp;&nbsp; (prikazy dle intrukcn&iacute; sady datasheet str. 365)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+init:&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+; Zacatek programu :</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+start:&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rjmp start</span></p>
+
+
+
+
+
+
+
+
+<p class="MsoNormal" style="text-align: left;"><br style="font-weight: bold;">
+
+
+
+
+
+
+
+
+<span style="font-weight: bold;">Použit&eacute; registry:</span><br>
+
+
+
+
+
+
+
+
+DDRx &ndash; Data Direction Registr &ndash; směr toku dat. Určuje zda bude pin vstupn&iacute; nebo v&yacute;stupn&iacute;.<br>
+
+
+
+
+
+
+
+
+PINx &ndash; načten&iacute; hodnoty na vstupu<br>
+
+
+
+
+
+
+
+
+PORTx- nastaven&iacute; hodnot na v&yacute;stupu<br>
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+<span style="font-weight: bold;">Použit&eacute; instrukce</span> (seznam v&scaron;ech instrukc&iacute; je v datasheetu použit&eacute;ho procesoru &ndash; u ATmega128 str. 365) : <br>
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+LDI &ndash; uložen&iacute; konstanty do registru (proměnn&eacute;)<br>
+
+
+
+
+
+
+
+
+OUT &ndash; z&aacute;pis dat z registru (proměnn&eacute;) do I/O prostoru<br>
+
+
+
+
+
+
+
+
+IN &ndash; načten&iacute; dat z I/O prostoru do registru (proměnn&eacute;)<br>
+
+
+
+
+
+
+
+
+RJMP &ndash; relativn&iacute; skok na adresu (č&aacute;st programu, atd. ) <br>
+
+
+
+
+
+
+
+
+SBRC &ndash; Testov&aacute;n&iacute; bitu v registru, zda je
+vynulov&aacute;n (clear), pokud ano přeskakuje
+n&aacute;sleduj&iacute;c&iacute; instrukci<br>
+
+
+
+
+
+
+
+
+SBRS &ndash; Testov&aacute;n&iacute; bitu v registru, zda je nastaven
+(set), pokud ano přeskakuje n&aacute;sleduj&iacute;c&iacute; instrukci<br>
+
+
+
+
+
+
+
+
+SBIC &ndash; Testov&aacute;n&iacute; bitu v I/O prostoru, zda je
+vynulov&aacute;n (clear), pokud ano přeskakuje
+n&aacute;sleduj&iacute;c&iacute; instrukci<br>
+
+
+
+
+
+
+
+
+SBIS &ndash; Testov&aacute;n&iacute; bitu v I/O prostoru, zda je
+nastaven (set), pokud ano přeskakuje n&aacute;sleduj&iacute;c&iacute;
+instrukci<br>
+
+
+
+
+
+
+
+
+RCALL &ndash; relativn&iacute; vol&aacute;n&iacute; podprogramu.
+N&aacute;vratov&aacute; hodnota je uložena v z&aacute;sobn&iacute;ku
+(stackpointer) <br>
+
+
+
+
+
+
+
+
+RET &ndash; n&aacute;vrat z podprogramu <br>
+
+
+
+
+
+
+
+
+INC / DEC &ndash; inkrementuje / dekrementuje obsah registru (proměnn&eacute;) <br>
+
+
+
+
+
+
+
+
+BRNE &ndash; pokud je přede&scaron;l&aacute; instrukce nenulov&aacute;,
+provede se relativn&iacute; skok na zvolenou č&aacute;st programu <br>
+
+
+
+
+
+
+
+
+ROR &ndash; rotace bitu vpravo<br>
+
+
+
+
+
+
+
+
+ROL &ndash; rotace bitu vlevo</p>
+
+
+
+
+
+
+
+
+<hr style="width: 100%; height: 2px;">
+<h2>Ře&scaron;en&iacute; :</h2>
+
+
+
+
+
+
+<p class="MsoNormal" style="text-align: left;"></p>
+
+
+
+
+
+
+<h3>Př&iacute;klad 1:</h3>
+
+
+
+
+
+
+<p class="MsoNormal" style="text-align: left;"><span style="font-family: Courier New,Courier,monospace;">;**************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;*&nbsp; Definice procesoru *</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;*************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.DEVICE atmega128&nbsp; ; neni nutne, ale je vhodne (kontrola spravnosti rozsahu pameti atd atd)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;*********************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; Definice portu a registru&nbsp; (pomoci direktiv) Adresy dle datasheetu str. 362</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU PIND =$10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D VSTUP&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU DDRD =$11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D SMER</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU PORTD =$12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU PINB =$16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU DDRB =$17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B SMER</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU PORTB =$18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B VYSTUP</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; Definice promenych&nbsp; (volne registry 16-31 - viz dataheet str 13.)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.def DATA=r25&nbsp;&nbsp;&nbsp; ;definice promene "DATA" do registru R25 (prirazeni jmena registu)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; inicializace portu&nbsp;&nbsp;&nbsp; (prikazy dle intrukcn&iacute; sady datasheet str. 365)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">init:&nbsp;&nbsp;&nbsp; ldi DATA,$ff&nbsp;&nbsp;&nbsp;&nbsp; ;(LDI-ulozi konstantu do registru)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; out ddrb,DATA&nbsp;&nbsp;&nbsp; ;(OUT-presun dat do I/O portu) - DDRx-smer toku 1 je vstup, 0 je vystup</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; ldi DATA,$00</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; out ddrd,DATA</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; Zacatek programu :</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">start:&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; in DATA,pind&nbsp;&nbsp;&nbsp;&nbsp; ; (IN -nacteni dat s I/O do registru)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; out portb,DATA&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; rjmp start</span><br>
+
+
+
+
+
+
+&nbsp;<br>
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+</p>
+
+
+
+
+
+
+<h3>Př&iacute;klad 2:</h3>
+
+
+
+
+
+
+<p class="MsoNormal" style="text-align: left;"><span style="font-family: Courier New,Courier,monospace;">;***************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;*&nbsp; Definice procesoru *</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;*************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.DEVICE atmega128&nbsp; ; neni nutne, ale je vhodne (kontrola spravnosti rozsahu pameti atd atd)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;*********************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; Definice portu a registru&nbsp; (pomoci direktiv) Adresy dle datasheetu str. 362</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU PIND =$10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D VSTUP&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU DDRD =$11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D SMER</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU PORTD =$12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU PINB =$16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU DDRB =$17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B SMER</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU PORTB =$18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B VYSTUP</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU SPL = $3D&nbsp; ; Stackpointer lowbyte</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.EQU SPH = $3E ; Stackpointer highbyte</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; Definice promenych&nbsp; (volne registry 16-31 - viz dataheet str 13.)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.def DATA=r25&nbsp;&nbsp;&nbsp; ;definice promene "DATA" do registru R25 (prirazeni jmena registu)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; inicializace portu&nbsp;&nbsp;&nbsp; (prikazy dle intrukcn&iacute; sady datasheet str. 365)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">init:&nbsp;&nbsp;&nbsp; ldi DATA,$ff&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;(LDI-ulozi konstantu do registru)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; out ddrb,DATA&nbsp;&nbsp;&nbsp; &nbsp;;(OUT-presun dat do I/O portu) - DDRx-smer toku 0 je vstup, 1 je vystup</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; ldi DATA,$00</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; out ddrd,DATA</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;**************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;Nastaveni STACK Pointeru (ma byt konec v pameti)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;konec SRAM dle datassheetu pro ATmega 128 str 20. je $10FF</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ldi DATA,$ff</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">out SPL,DATA ;nastaven&iacute; SPL (SP lowbit)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ldi DATA,$10</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">out SPH,DATA ;nastaven&iacute; SPH (SP hightbit)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;**************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; Zacatek programu :</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;****************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">start:&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sbic pind,0&nbsp;&nbsp;&nbsp; ;
+jestli splnena podminka tak nasledujici instrukce,jinak ta dalsi</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;">rjmp</span><span style="font-family: Courier New,Courier,monospace;"> nesviti</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family: Courier New,Courier,monospace;">rjmp</span><span style="font-family: Courier New,Courier,monospace;"> sviti</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;****************************************************************&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;Podprogramy</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;****************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">sviti:&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ldi DATA,0</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; out portb,DATA</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; rjmp start</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;****************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">nesviti:</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ldi DATA,255</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; out portb,DATA</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; rjmp start</span><br>
+
+
+
+
+
+
+&nbsp;<br>
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+</p>
+
+
+
+
+
+
+<h3>Př&iacute;klad 3:</h3>
+
+
+
+
+
+
+<p class="MsoNormal" style="text-align: left;"><br>
+
+
+
+
+
+
+Viz př&iacute;klad 2, přidat:<br>
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.def ta =r17 ;register pro časov&aacute;n&iacute;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.def tb =r18 ;register pro časov&aacute;n&iacute;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">.def tc =r19 ;register pro časov&aacute;n&iacute;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">Podprogram sviti upravit pro blik&aacute;n&iacute;: </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;**************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">sviti:&nbsp;&nbsp;&nbsp; ;(blika)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ldi DATA,0</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; out portb,DATA</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; rcall cekej</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ldi DATA,255</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; out portb,DATA</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; rcall cekej</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; rjmp start</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">vytvořit podprogram &bdquo;cekej&ldquo; :</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;* Podprogram CEKEJ</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;***************************************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">cekej: &nbsp;&nbsp;&nbsp; ldi ta,10</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; ldi tb,0</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; ldi tc,0</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">cekam: &nbsp;&nbsp;&nbsp; dec tc</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; brne cekam ;prvn&iacute; smyčka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; dec tb</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; brne cekam ;druh&aacute; smyčka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; dec ta</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; brne cekam ;třet&iacute; smyčka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; ret</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;******************************************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;* čas cekej je dan&yacute; třemi vnořen&yacute;m&iacute; cykly; jeden cyklus trv&aacute; 3 periody</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;* a podle vstupn&iacute;ho obsahu př&iacute;slu&scaron;n&eacute;ho registru proběhne až 256 x</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;* (zde prvn&iacute; a druh&aacute; smyčka); zde 10 * 256 * 256 * 3 * perioda;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;* perioda T = 1/f, zde při f=14MHz je0,125 us,</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;* takže je generov&aacute;no zpožděn&iacute; 0,14s</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">;*****************************************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+</p>
+
+
+
+
+
+
+<h3>Př&iacute;klad 4:</h3>
+
+
+
+
+
+
+<p class="MsoNormal" style="text-align: left;"><br>
+
+
+
+
+
+
+Viz přiklad 3 hlavn&iacute; program upravit :<br>
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">; Zacatek programu :</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">ldi DATA,0b11111111 ; 0 - sviti , 1 - nesviti</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">start:&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; out portb,DATA</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; ror
+DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;(ROR
+- rotate right, presunuje se priznak C,ROL - rot.left)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; rcall cekej</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; rjmp start&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ; skok na zacatek</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+
+
+
+
+</p>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>prazdny ASM</title>
+</head>
+<body>
+<span style="font-family: Courier New,Courier,monospace;">;***************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">;*&nbsp; Definice procesoru *</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">;*************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.DEVICE atmega128&nbsp; ; neni nutne, ale je vhodne (kontrola spravnosti rozsahu pameti atd atd)</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">;*********************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">; Definice portu a registru&nbsp; (pomoci direktiv) Adresy dle datasheetu str. 362</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.EQU PIND =$10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D VSTUP - Tlacitka</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.EQU DDRD =$11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D SMER</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.EQU PORTD =$12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT D</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.EQU PINB =$16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.EQU DDRB =$17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B SMER</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.EQU PORTB =$18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; PORT B VYSTUP - LEDky</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.EQU SPL = $3D&nbsp; ; Stackpointer lowbyte</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.EQU SPH = $3E ; Stackpointer highbyte</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">; Definice promenych&nbsp; (volne registry 16-31 - viz dataheet str 13.)</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">.def DATA=r25&nbsp;&nbsp;&nbsp; ;definice promene "DATA" do registru R25 (prirazeni jmena registu)</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">;************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">; inicializace portu&nbsp;&nbsp;&nbsp; (prikazy dle intrukcn&iacute; sady datasheet str. 365)</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">init: </span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">; Zacatek programu :</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">start:&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rjmp startt</span>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="cs">
+<head>
+
+
+
+
+
+  
+  
+  
+  
+  
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+
+
+
+
+
+  
+  
+  
+  
+  
+  <title>4. hodina</title>
+</head>
+
+
+<body>
+
+
+<h1>
+Extern&iacute; přeru&scaron;en&iacute; </h1>
+
+
+Sezn&aacute;men&iacute; s možnost&iacute; extern&iacute;ho přeru&scaron;en&iacute;<br>
+
+
+<span style="font-weight: bold;"><br>
+
+
+Ře&scaron;en&eacute; př&iacute;klady:</span><br>
+
+
+&bull;&nbsp;&nbsp;&nbsp; Vytvořte funkci tzv. Cykloblikače, po stisku tlač&iacute;tka změnit blikaj&iacute;c&iacute; sekvenci.<br>
+
+
+<hr style="width: 100%; height: 2px;">
+<h2>Zad&aacute;n&iacute;: </h2>
+
+
+Při stisku tlač&iacute;tka 0 změňte sekvenci blik&aacute;n&iacute; 8 LED. Využijte extern&iacute; přeru&scaron;eni 0 (EXT0) . 
+<hr style="width: 100%; height: 2px;">
+<h2>N&aacute;pověda:</h2>
+
+<span style="font-weight: bold;">Přeru&scaron;en&iacute; obecně</span><br>
+Přeru&scaron;en&iacute; je n&aacute;stroj , kter&yacute; n&aacute;m
+přeru&scaron;&iacute; běh programu a skoč&iacute; do č&aacute;sti
+zvan&eacute; obsluha přeru&scaron;en&iacute; (ISR - Interrupt Service
+Routine). Po vykon&aacute;n&iacute;
+č&aacute;sti programu v obsluze přeru&scaron;en&iacute; se opět běh
+programu vr&aacute;t&iacute; na m&iacute;sto,
+kde byl program přeru&scaron;en.&nbsp; Existuje několik druhů
+přeru&scaron;en&iacute;, kter&eacute;
+z&aacute;vis&iacute; na ud&aacute;lostech, kter&eacute; jej vyvolali,
+jsou to:<br>
+
+<ul>
+
+  <li><span style="font-style: italic;">přeru&scaron;en&iacute; vyvolan&eacute; vnitřn&iacute;mi obvody procesoru </span>(Timer - viz dal&scaron;&iacute; hodina) </li>
+
+  <li><span style="font-style: italic;">přeru&scaron;en&iacute; vyvolan&eacute; perifern&iacute;mi obvody procesoru</span> - UART, AD převodn&iacute;k, SPI, atd.</li>
+
+  <li><span style="font-style: italic;">přeru&scaron;en&iacute; vyvolan&eacute; vněj&scaron;&iacute;m prostřed&iacute;m</span> - extern&iacute; přeru&scaron;en&iacute; - změna napěťov&eacute; &uacute;rovně na speci&aacute;ln&iacute;ch pinech procesoru </li>
+
+</ul>
+
+Přeru&scaron;en&iacute; se využ&iacute;vaj&iacute; k efektivn&iacute;m reakc&iacute;m na danou situaci. <br>
+
+<br>
+
+
+<span style="font-weight: bold;">Inicializace externiho přeru&scaron;en&iacute; pro EXT0</span><br>
+
+
+<span style="font-family: Courier New,Courier,monospace;">// External Interrupt(s) initialization</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">// INT0: On</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">// INT0 Mode: Falling Edge</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">EICRA=0x02;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">EICRB=0x00;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">EIMSK=0x01;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">EIFR=0x01;</span><br>
+
+
+<br>
+
+
+<span style="font-weight: bold;">Obsluha přeru&scaron;en&iacute; a vektor přeru&scaron;en&iacute; pro EXT0</span><br>
+
+
+<span style="font-family: Courier New,Courier,monospace;">ISR(INT0_vect)&nbsp;&nbsp;&nbsp;// obsluha preruseni</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">prerus1=1;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br>
+
+
+<br>
+
+
+<span style="font-weight: bold;">povolen&iacute; přeru&scaron;en&iacute; </span><br>
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Global enable interrupts</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">sei();</span><br>
+
+
+<br>
+
+
+<span style="font-weight: bold;">Definice proměn&eacute; pro použit&iacute; v "obsluze přeru&scaron;en&iacute;"</span><br>
+
+
+<span style="font-family: Courier New,Courier,monospace;">volatile unsigned char prerus1; <br>
+
+
+//Pokud je nějak&aacute; proměnn&aacute; označena slovem volatile,</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">//nebude kompil&aacute;tor ž&aacute;dn&yacute;m způsobem optimalizovat jej&iacute; užit&iacute;.</span>
+<hr style="width: 100%; height: 2px;">
+<h2>Ře&scaron;en&iacute; :</h2>
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define F_CPU 16000000UL&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;avr/io.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;string.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;util/delay.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">#include &lt;avr/interrupt.h&gt;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">//*******************************************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">//&nbsp; MOJE UPRAVY</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">//-------------------------------------------------------------------------------------------</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">//</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define setb(port,pin)&nbsp;&nbsp;&nbsp; port |= 1&lt;&lt;pin&nbsp;&nbsp;&nbsp; //nastav bit</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define clrb(port,pin)&nbsp;&nbsp;&nbsp; port &amp;= ~(1&lt;&lt;pin) //nuluj bit</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">#define negb(port,pin)&nbsp;&nbsp;&nbsp; port ^= 1&lt;&lt;pin&nbsp;&nbsp;&nbsp; //neguj bit</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">//***********************************************************************************</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">int i;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">int x;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">int y;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">int stav;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">volatile unsigned char prerus1=0; //Pokud je nějak&aacute; proměnn&aacute; označena slovem volatile,</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; // nebude kompil&aacute;tor ž&aacute;dn&yacute;m způsobem optimalizovat
+jej&iacute; užit&iacute;.</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">ISR(INT0_vect)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // obsluha preruseni</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">prerus1=1;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">int main(void)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">{</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRB=0xFF; // vystupn&iacute; - Ledky</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">DDRD=0x00; // vstupn&iacute;&nbsp; - Tlacitka</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">// External Interrupt(s) initialization</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">// INT0: On</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">// INT0 Mode: Falling Edge</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">EICRA=0x02;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">EICRB=0x00;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">EIMSK=0x01;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">EIFR=0x01;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br>
+
+
+<span style="font-family: Courier New,Courier,monospace;">// Global enable interrupts</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">sei();</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; PORTB=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; _delay_ms(1000);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp; PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; _delay_ms(1000);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; PORTB=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; _delay_ms(1000);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp; PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp; _delay_ms(1000);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">stav=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">while (1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (prerus1==1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; stav=stav+1;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (stav&gt;5) stav=1;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; prerus1=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (stav==0)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,0);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; _delay_ms(100);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (stav==1)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; PORTB=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (stav==2)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for (i=0;i&lt;=7;i++) </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,i);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; _delay_ms(100);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,i);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</span><span style="font-family: Courier New,Courier,monospace;"></span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (stav==3)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for (i=7;i&gt;=0;i--)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,i);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; _delay_ms(100);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,i);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</span><span style="font-family: Courier New,Courier,monospace;"></span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (stav==4)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; _delay_ms(200);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; PORTB=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; _delay_ms(200);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">if (stav==5)</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; PORTB=255;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; x=3;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; y=4;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for (i=0;i&lt;=3;i++) </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+negb(PORTB,x);&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,y);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;_delay_ms(100);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+negb(PORTB,x);&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,y);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;y++;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;x--;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; x=0;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; y=7;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for (i=0;i&lt;=3;i++) </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+negb(PORTB,x);&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,y);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;_delay_ms(100);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+negb(PORTB,x);&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; negb(PORTB,y);</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;x++;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;y--;</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; }</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;"> </span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp; &nbsp;};</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<span style="font-family: Courier New,Courier,monospace;">}</span><br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+<br style="font-family: Courier New,Courier,monospace;">
+
+
+
+<br>
+
+
+
+
+</body>
+</html>

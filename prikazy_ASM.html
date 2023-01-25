@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=windows-1250" http-equiv="content-type">
+  <title>Př&iacute;kazy ASM</title>
+</head>
+<body>
+<span style="font-weight: bold;">Potřebn&eacute; př&iacute;kazy pro pr&aacute;ci s porty v ASM<br>
+<br>
+Použit&eacute; registry:</span><br>
+
+
+
+
+
+
+
+
+DDRx &ndash; Data Direction Registr &ndash; směr toku dat. Určuje zda bude pin vstupn&iacute; nebo v&yacute;stupn&iacute;.<br>
+
+
+
+
+
+
+
+
+PINx &ndash; načten&iacute; hodnoty na vstupu<br>
+
+
+
+
+
+
+
+
+PORTx- nastaven&iacute; hodnot na v&yacute;stupu<br>
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+<span style="font-weight: bold;">Použit&eacute; instrukce</span> (seznam v&scaron;ech instrukc&iacute; je v datasheetu použit&eacute;ho procesoru &ndash; u ATmega128 str. 365) : <br>
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+LDI &ndash; uložen&iacute; konstanty do registru (proměnn&eacute;)<br>
+
+
+
+
+
+
+
+
+OUT &ndash; z&aacute;pis dat z registru (proměnn&eacute;) do I/O prostoru<br>
+
+
+
+
+
+
+
+
+IN &ndash; načten&iacute; dat z I/O prostoru do registru (proměnn&eacute;)<br>
+
+
+
+
+
+
+
+
+RJMP &ndash; relativn&iacute; skok na adresu (č&aacute;st programu, atd. ) <br>
+
+
+
+
+
+
+
+
+SBRC &ndash; Testov&aacute;n&iacute; bitu v registru, zda je
+vynulov&aacute;n (clear), pokud ano přeskakuje
+n&aacute;sleduj&iacute;c&iacute; instrukci<br>
+
+
+
+
+
+
+
+
+SBRS &ndash; Testov&aacute;n&iacute; bitu v registru, zda je nastaven
+(set), pokud ano přeskakuje n&aacute;sleduj&iacute;c&iacute; instrukci<br>
+
+
+
+
+
+
+
+
+SBIC &ndash; Testov&aacute;n&iacute; bitu v I/O prostoru, zda je
+vynulov&aacute;n (clear), pokud ano přeskakuje
+n&aacute;sleduj&iacute;c&iacute; instrukci<br>
+
+
+
+
+
+
+
+
+SBIS &ndash; Testov&aacute;n&iacute; bitu v I/O prostoru, zda je
+nastaven (set), pokud ano přeskakuje n&aacute;sleduj&iacute;c&iacute;
+instrukci<br>
+
+
+
+
+
+
+
+
+RCALL &ndash; relativn&iacute; vol&aacute;n&iacute; podprogramu.
+N&aacute;vratov&aacute; hodnota je uložena v z&aacute;sobn&iacute;ku
+(stackpointer) <br>
+
+
+
+
+
+
+
+
+RET &ndash; n&aacute;vrat z podprogramu <br>
+
+
+
+
+
+
+
+
+INC / DEC &ndash; inkrementuje / dekrementuje obsah registru (proměnn&eacute;) <br>
+
+
+
+
+
+
+
+
+BRNE &ndash; pokud je přede&scaron;l&aacute; instrukce nenulov&aacute;,
+provede se relativn&iacute; skok na zvolenou č&aacute;st programu <br>
+
+
+
+
+
+
+
+
+ROR &ndash; rotace bitu vpravo<br>
+
+
+
+
+
+
+
+
+ROL &ndash; rotace bitu vlevo<br>
+<br>
+</body>
+</html>
